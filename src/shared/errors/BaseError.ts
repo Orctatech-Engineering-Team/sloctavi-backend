@@ -1,0 +1,1 @@
+// global base error class

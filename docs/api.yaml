@@ -1,0 +1,308 @@
+openapi: 3.0.3
+info:
+  title: Slcotavi API
+  version: 1.0.0
+  description: Core API for Slcotavi booking and professional service platform
+
+servers:
+  - url: https://api.slcotavi.com/v1
+  - url: http://localhost:3000/v1
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Authentication
+    description: User authentication and profile management
+  - name: Profile
+    description: Customer and professional profile management
+  - name: Availability
+    description: Manage professional availability
+  - name: Services
+    description: Service management by professionals
+  - name: Bookings
+    description: Booking management for customers and professionals
+  - name: Reviews
+    description: Review management for bookings
+  - name: Dashboard
+    description: Dashboard features like popular professionals and hot deals
+
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new user
+      tags: [Authentication]
+      security: []
+      description: Create a new account for customers or professionals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequest"
+      responses:
+        "201":
+          description: Successfully created account
+        "400":
+          description: Invalid input
+
+  /auth/signin:
+
+    post:
+      summary: Sign in with email and password
+      tags: [Authentication]
+      description: Authenticate user and return JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInRequest"
+      responses:
+        "200":
+          description: Authentication successful
+        "401":
+          description: Invalid credentials
+
+  /auth/verify-email:
+    post:
+      summary: Verify email with OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailVerification"
+      responses:
+        "200":
+          description: Email verified
+        "400":
+          description: Invalid OTP
+
+  /profile/customer:
+    get:
+      summary: Get customer profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Returns customer profile
+    post:
+      summary: Create or update customer profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerProfile"
+      responses:
+        "201":
+          description: Profile saved
+
+  /profile/professional:
+    get:
+      summary: Get professional profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Returns professional profile
+    post:
+      summary: Create or update professional profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfessionalProfile"
+      responses:
+        "201":
+          description: Profile saved
+
+  /availability:
+    post:
+      summary: Set availability
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Availability"
+      responses:
+        "201":
+          description: Availability created
+
+  /services:
+    get:
+      summary: Get list of services by profession
+      parameters:
+        - name: professionId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of services
+    post:
+      summary: Create new service (admin/professional)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Service"
+      responses:
+        "201":
+          description: Service created
+
+  /bookings:
+    post:
+      summary: Create a booking
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingRequest"
+      responses:
+        "201":
+          description: Booking created
+
+    get:
+      summary: List user's bookings (customer or professional)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of bookings
+
+  /reviews:
+    post:
+      summary: Submit a review for a booking
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+      responses:
+        "201":
+          description: Review created
+
+  /dashboard/popular:
+    get:
+      summary: Popular professionals
+      responses:
+        "200":
+          description: List of popular professionals
+
+  /dashboard/hot-deals:
+    get:
+      summary: Hot deals and promos
+      responses:
+        "200":
+          description: Current hot deals
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    SignUpRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        type:
+          type: string
+          enum: [customer, professional]
+      required: [email, password, type]
+
+    SignInRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+
+    EmailVerification:
+      type: object
+      properties:
+        userId:
+          type: string
+        otpCode:
+          type: string
+      required: [userId, otpCode]
+
+    CustomerProfile:
+      type: object
+      properties:
+        firstName: {type: string}
+        lastName: {type: string}
+        otherName: {type: string}
+        phoneNumber: {type: string}
+        profileImage: {type: string}
+
+    ProfessionalProfile:
+      type: object
+      properties:
+        name: {type: string}
+        location: {type: string}
+        description: {type: string}
+        rating: {type: number}
+        status: {type: string}
+        profileImage: {type: string}
+        businessName: {type: string}
+        yearsOfExperience: {type: integer}
+        businessType: {type: string}
+        professionId: {type: integer}
+
+    Availability:
+      type: object
+      properties:
+        day: {type: string}
+        fromTime: {type: string}
+        toTime: {type: string}
+
+    Service:
+      type: object
+      properties:
+        name: {type: string}
+        professionId: {type: integer}
+        priceRange: {type: string}
+        durationEstimate: {type: integer}
+
+    BookingRequest:
+      type: object
+      properties:
+        professionalId: {type: string}
+        serviceId: {type: integer}
+        date: {type: string}
+        time: {type: string}
+        notes: {type: string}
+
+    Review:
+      type: object
+      properties:
+        bookingId: {type: string}
+        rating: {type: integer}
+        comment: {type: string}

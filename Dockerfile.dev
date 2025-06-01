@@ -1,0 +1,25 @@
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Install system deps (optional: for better debugging)
+RUN apk add --no-cache bash
+
+# Copy only essential files first
+COPY package.json pnpm-lock.yaml ./
+
+# Install deps (no --frozen-lockfile so it's flexible)
+RUN pnpm install
+
+# Copy source files after installing dependencies
+COPY . .
+
+# Expose port for local development
+EXPOSE 3000
+
+# Run dev server with hot reload
+CMD ["pnpm", "dev"]
