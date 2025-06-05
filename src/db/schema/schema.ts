@@ -1,4 +1,3 @@
-import { create } from "domain";
 import {
   boolean,
   date,
@@ -342,4 +341,10 @@ export const insertUsersSchema = createInsertSchema(users).omit({
 
 export const selectUsersSchema = createSelectSchema(users).omit({
   password: true, // omit password from select schema
-})
+});
+export const insertBookingStatusSchema = createInsertSchema(bookingStatus).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const selectBookingStatusSchema = createSelectSchema(bookingStatus);

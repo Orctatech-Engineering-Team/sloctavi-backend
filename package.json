@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
+    "@hono/node-ws": "^1.1.6",
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.18.4",
     "@hono/zod-validator": "^0.5.0",
@@ -41,6 +42,7 @@
     "pino-pretty": "^13.0.0",
     "postgres": "^3.4.5",
     "stoker": "1.4.2",
+    "ws": "^8.18.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -50,6 +52,7 @@
     "@types/node": "^22.13.10",
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.15.2",
+    "@types/ws": "^8.18.1",
     "cross-env": "^7.0.3",
     "drizzle-kit": "^0.24.2",
     "eslint": "^9.22.0",

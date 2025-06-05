@@ -9,6 +9,9 @@ router
   .openapi(routes.register, handlers.register)
   .openapi(routes.login, handlers.login)
   .openapi(routes.refreshToken, handlers.refresh)
-  .openapi(routes.logout, handlers.logout);
+  .openapi(routes.logout, handlers.logout)
+  .openapi(routes.verifyEmail, handlers.verifyEmail)
+  .openapi(routes.checkVerificationStatus, handlers.checkVerificationStatus)
+  .openapi(routes.resendOTP, handlers.resendOTP);
 
 export default router;

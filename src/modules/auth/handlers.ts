@@ -6,9 +6,11 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { AppRouteHandler } from "@/lib/types";
 
 import env from "@/env";
+// import { AppError } from "@/utils/error";
 
-import type { LoginRoute, LogoutRoute, RefreshRoute, RegisterRoute } from "./routes";
+import type { CheckVerificationStatusRoute, LoginRoute, LogoutRoute, RefreshRoute, RegisterRoute, ResendOTPRoute, VerifyEmailRoute } from "./routes";
 
+import OTPService from "./otp";
 import Auth from "./services";
 
 export const register: AppRouteHandler<RegisterRoute> = async (c) => {
@@ -21,7 +23,24 @@ export const register: AppRouteHandler<RegisterRoute> = async (c) => {
     }, HttpStatusCodes.BAD_REQUEST);
   }
 
-  return c.json(user, HttpStatusCodes.CREATED);
+  // Determine user name for OTP email
+  const userName = "Cherished User";
+
+  // Send OTP for email verification
+  try {
+    await OTPService.generateAndSendOTP(user.id, user.email, userName);
+  }
+  catch (otpError) {
+    // Log the error but don't fail registration
+    const logger = c.get("logger");
+    logger.error({ err: otpError }, "Failed to send verification email during registration");
+  }
+
+  return c.json({
+    user,
+    message: "Registration successful. Please check your email for verification code.",
+    requiresVerification: true,
+  }, HttpStatusCodes.CREATED);
 };
 
 export const login: AppRouteHandler<LoginRoute> = async (c) => {
@@ -126,4 +145,91 @@ export const logout: AppRouteHandler<LogoutRoute> = async (c) => {
   });
 
   return c.json({ message: "Logged out" });
+};
+
+export const verifyEmail: AppRouteHandler<VerifyEmailRoute> = async (c) => {
+  try {
+    const { userId, otpCode } = c.req.valid("json");
+
+    const isValid = await OTPService.verifyOTP(userId, otpCode);
+
+    if (!isValid) {
+      return c.json({
+        message: "Invalid or expired OTP code",
+        verified: false,
+      }, HttpStatusCodes.BAD_REQUEST);
+    }
+
+    return c.json({
+      message: "Email verified successfully",
+      verified: true,
+    }, HttpStatusCodes.OK);
+  }
+  catch (error) {
+    const logger = c.get("logger");
+    logger.error({ err: error }, "Email verification failed");
+
+    // if (error instanceof AppError) {
+    //   return c.json({
+    //     message: error.message,
+    //     verified: false,
+    //   }, error.statusCode);
+    // }
+
+    return c.json({
+      message: "Email verification failed",
+      verified: false,
+    }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
+
+export const resendOTP: AppRouteHandler<ResendOTPRoute> = async (c) => {
+  try {
+    const { userId } = c.req.valid("json");
+
+    await OTPService.resendOTP(userId);
+
+    return c.json({
+      message: "Verification code sent successfully",
+    }, HttpStatusCodes.OK);
+  }
+  catch (error) {
+    const logger = c.get("logger");
+    logger.error({ err: error }, "Failed to resend OTP");
+
+    // if (error instanceof AppError) {
+    //   return c.json({ message: error.message }, error.statusCode);
+    // }
+
+    return c.json({
+      message: "Failed to send verification code",
+    }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
+
+export const checkVerificationStatus: AppRouteHandler<CheckVerificationStatusRoute> = async (c) => {
+  try {
+    const userId = c.get("jwtPayload")?.userId;
+
+    if (!userId) {
+      return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
+    }
+
+    const requiresVerification = await OTPService.requiresVerification(userId);
+
+    return c.json({
+      isVerified: !requiresVerification,
+      requiresVerification,
+    }, HttpStatusCodes.OK);
+  }
+  catch (error) {
+    const logger = c.get("logger");
+    logger.error({ err: error }, "Failed to check verification status");
+
+    return c.json({
+      message: "Failed to check verification status",
+      isVerified: false,
+      requiresVerification: true,
+    }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
+  }
 };

@@ -4,7 +4,6 @@ import type { HTTPException } from "hono/http-exception";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 
 import env from "@/env";
-import { da } from "@faker-js/faker";
 
 type StatusCode = typeof HttpStatusCodes[keyof typeof HttpStatusCodes];
 
@@ -15,7 +14,7 @@ export class AppError extends Error {
 
   constructor(
     message: string,
-    statusCode: typeof HttpStatusCodes[keyof typeof HttpStatusCodes],
+    statusCode: StatusCode,
     options?: { cause?: unknown },
   ) {
     super(message);

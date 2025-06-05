@@ -2,9 +2,9 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 
 import type { AppRouteHandler } from "@/lib/types";
 
-import type { CreateCustomerProfile,GetCustomerProfileRoute,GetProfessionalProfileRoute,CreateProfessionalProfileRoute } from "./routes";
+import type { CreateCustomerProfile, CreateProfessionalProfileRoute, GetCustomerProfileRoute, GetProfessionalProfileRoute } from "./routes";
 
-import profileService from "./service";
+import profileService from "./services";
 
 export const createCustomerProfile: AppRouteHandler<CreateCustomerProfile> = async (c) => {
   const data = c.req.valid("json");
@@ -25,9 +25,8 @@ export const createCustomerProfile: AppRouteHandler<CreateCustomerProfile> = asy
 };
 
 export const getCustomerProfile: AppRouteHandler<GetCustomerProfileRoute> = async (c) => {
-    console.log(c.get("jwtPayload"));
-  const userId = c.get("jwtPayload")?.userId
-  
+  const userId = c.get("jwtPayload")?.userId;
+
   if (!userId) {
     return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
   }

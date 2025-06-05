@@ -11,6 +11,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.13.8
         version: 1.13.8(hono@4.7.4)
+      '@hono/node-ws':
+        specifier: ^1.1.6
+        version: 1.1.6(@hono/node-server@1.13.8(hono@4.7.4))(hono@4.7.4)
       '@hono/swagger-ui':
         specifier: ^0.5.1
         version: 0.5.1(hono@4.7.4)
@@ -89,6 +92,9 @@ importers:
       stoker:
         specifier: 1.4.2
         version: 1.4.2(@asteasolutions/zod-to-openapi@7.1.2(zod@3.24.2))(@hono/zod-openapi@0.18.4(hono@4.7.4)(zod@3.24.2))(hono@4.7.4)(openapi3-ts@4.4.0)
+      ws:
+        specifier: ^8.18.2
+        version: 8.18.2
       zod:
         specifier: ^3.24.2
         version: 3.24.2
@@ -111,6 +117,9 @@ importers:
       '@types/pg':
         specifier: ^8.15.2
         version: 8.15.2
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -887,6 +896,13 @@ packages:
     peerDependencies:
       hono: ^4
 
+  '@hono/node-ws@1.1.6':
+    resolution: {integrity: sha512-8ab2e0sr5FUbQJVYo0OxzaToQkiyeA9pOkLauzWHYNKfarhQ7XlISWsM3lShQYOOgrWpgXXxr1FTXXE0V7P/uw==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      '@hono/node-server': ^1.11.1
+      hono: ^4.6.0
+
   '@hono/swagger-ui@0.5.1':
     resolution: {integrity: sha512-XpUCfszLJ9b1rtFdzqOSHfdg9pfBiC2J5piEjuSanYpDDTIwpMz0ciiv5N3WWUaQpz9fEgH8lttQqL41vIFuDA==}
     peerDependencies:
@@ -1232,8 +1248,8 @@ packages:
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
-  '@types/ws@8.5.12':
-    resolution: {integrity: sha512-3tPRkv1EtkDpzlgyKyI8pGsGZAGPEaXeu0DOj5DI25Ja91bdAYddYHbADRYVrZMRbfW+1l5YwXVDKohDJNQxkQ==}
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@typescript-eslint/eslint-plugin@8.26.1':
     resolution: {integrity: sha512-2X3mwqsj9Bd3Ciz508ZUtoQQYpOhU/kWoUqIf49H8Z0+Vbh6UF/y0OEYp0Q0axOGzaBGs7QxRwq0knSQ8khQNA==}
@@ -3371,8 +3387,8 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  ws@8.18.0:
-    resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
+  ws@8.18.2:
+    resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -3911,6 +3927,15 @@ snapshots:
     dependencies:
       hono: 4.7.4
 
+  '@hono/node-ws@1.1.6(@hono/node-server@1.13.8(hono@4.7.4))(hono@4.7.4)':
+    dependencies:
+      '@hono/node-server': 1.13.8(hono@4.7.4)
+      hono: 4.7.4
+      ws: 8.18.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@hono/swagger-ui@0.5.1(hono@4.7.4)':
     dependencies:
       hono: 4.7.4
@@ -3984,8 +4009,8 @@ snapshots:
 
   '@libsql/isomorphic-ws@0.1.5':
     dependencies:
-      '@types/ws': 8.5.12
-      ws: 8.18.0
+      '@types/ws': 8.18.1
+      ws: 8.18.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -4150,8 +4175,8 @@ snapshots:
     dependencies:
       '@supabase/node-fetch': 2.6.15
       '@types/phoenix': 1.6.6
-      '@types/ws': 8.5.12
-      ws: 8.18.0
+      '@types/ws': 8.18.1
+      ws: 8.18.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -4229,7 +4254,7 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
-  '@types/ws@8.5.12':
+  '@types/ws@8.18.1':
     dependencies:
       '@types/node': 22.13.10
 
@@ -6692,7 +6717,7 @@ snapshots:
 
   wrappy@1.0.2: {}
 
-  ws@8.18.0: {}
+  ws@8.18.2: {}
 
   xml-name-validator@4.0.0: {}
 

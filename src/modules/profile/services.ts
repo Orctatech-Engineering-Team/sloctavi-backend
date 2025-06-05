@@ -1,14 +1,12 @@
 import { eq } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 
-import { type CustomerProfile,type ProfessionalProfile,type NewCustomerProfile,type NewProfessionalProfile, customerProfiles, professionalProfiles } from "@/db/schema/schema";
-
 import db from "@/db";
+import { type CustomerProfile, customerProfiles, type NewCustomerProfile, type NewProfessionalProfile, type ProfessionalProfile, professionalProfiles } from "@/db/schema/schema";
 import { AppError } from "@/utils/error";
-import { createCustomerProfile,getCustomerProfile,getProfessionalProfile,createProfessionalProfile } from "./routes";
 
 export const profileService = {
-  async createCustomerProfile(data:NewCustomerProfile): Promise<CustomerProfile> {
+  async createCustomerProfile(data: NewCustomerProfile): Promise<CustomerProfile> {
     try {
       const customer = await db.insert(customerProfiles).values(data).returning();
       return customer[0];
@@ -23,7 +21,7 @@ export const profileService = {
       );
     }
   },
-  async createProfessionalProfile(data:NewProfessionalProfile): Promise<ProfessionalProfile> {
+  async createProfessionalProfile(data: NewProfessionalProfile): Promise<ProfessionalProfile> {
     try {
       const professionalProfile = await db.insert(professionalProfiles).values(data).returning();
       return professionalProfile[0];
@@ -58,7 +56,7 @@ export const profileService = {
       );
     }
   },
-  async getProfessionalProfile(userId:string): Promise<ProfessionalProfile | null> {
+  async getProfessionalProfile(userId: string): Promise<ProfessionalProfile | null> {
     try {
       const profile = await db.query.professionalProfiles.findFirst({
         where: eq(professionalProfiles.userId, userId),
