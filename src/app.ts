@@ -10,7 +10,7 @@ import index from "@/routes/index";
 import { createWebSocketHandler } from "@/shared/services/notification/websocket";
 import { createBullBoard } from "@bull-board/api";
 import { HonoAdapter } from "@bull-board/hono";
-import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js';
 import { emailQueue } from "@/shared/services/mailer/queue";
 import { serveStatic } from "@hono/node-server/serve-static";
 import {showRoutes} from "hono/dev"

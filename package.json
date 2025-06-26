@@ -1,8 +1,8 @@
 {
   "name": "sloctavi-backend",
-  "type": "module",
   "version": "1.0.0",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node ./dist/src/index.js",
@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix",
     "test": "cross-env NODE_ENV=test vitest",
-    "build": "tsc && tsc-alias",
+    "build": "swc src --out-dir dist --config-file .swcrc && tsc-alias && powershell Copy-Item -Path package.json -Destination dist/",
     "migrate": "drizzle-kit push",
     "start:worker:email": "tsx src/scripts/worker-manager.ts start",
     "stop:worker:email": "tsx src/scripts/worker-manager.ts stop",
@@ -54,6 +54,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
+    "@swc/cli": "^0.7.7",
+    "@swc/core": "^1.12.7",
     "@types/html-to-text": "^9.0.4",
     "@types/node": "^22.13.10",
     "@types/nodemailer": "^6.4.17",

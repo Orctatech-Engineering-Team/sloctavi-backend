@@ -3,7 +3,16 @@ import { apiReference } from "@scalar/hono-api-reference";
 
 import type { AppOpenAPI } from "./types";
 
-import packageJSON from "../../package.json" with { type: "json" };
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+import fs from 'fs/promises';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const pkgJsonPath = resolve(__dirname, '../../package.json');
+const pkg = JSON.parse(await fs.readFile(pkgJsonPath, 'utf-8'));
+
 
 export default function configureOpenAPI(app: AppOpenAPI) {
   // Serve OpenAPI JSON at /doc
@@ -12,7 +21,7 @@ export default function configureOpenAPI(app: AppOpenAPI) {
     info: {
       title: "SMSX API",
       description: "RESTful API documentation for the SMSX backend — manage users, notifications, and platform services.",
-      version: packageJSON.version,
+      version: pkg.version,
       contact: {
         name: "SMSX Dev Team",
         email: "dev@smsx.dev",
