@@ -33,3 +33,5 @@ dev.db
 test.db
 .vercel
 dist
+
+todo.md
