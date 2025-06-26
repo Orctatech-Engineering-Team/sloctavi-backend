@@ -6,7 +6,6 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { AppRouteHandler } from "@/lib/types";
 
 import env from "@/env";
-// import { AppError } from "@/utils/error";
 
 import type { CheckVerificationStatusRoute, LoginRoute, LogoutRoute, RefreshRoute, RegisterRoute, ResendOTPRoute, VerifyEmailRoute } from "./routes";
 

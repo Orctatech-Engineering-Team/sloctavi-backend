@@ -13,14 +13,14 @@ export class MailService {
         removeOnComplete: true,
         removeOnFail: false,
       });
-      logInfo(`📬 Queued email to ${payload.to}`, {
+      logInfo(`Queued email to ${payload.to}`, {
         subject: payload.subject,
         service: "MailService",
         method: "send",
       });
     }
     catch (err) {
-      logError(err, "❌ Failed to queue email", {
+      logError(err, "Failed to queue email", {
         service: "MailService",
         method: "send",
         to: payload.to,
