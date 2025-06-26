@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: sloctavi-backend
+    runtime: node
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sloctavi-db
+          property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: sloctavi-redis
+          property: connectionString
+      - key: JWT_SECRET
+        value: your-jwt-secret
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+    healthCheckPath: /healthz
+
+  - type: worker
+    name: email-worker
+    runtime: node
+    buildCommand: pnpm install
+    startCommand: pnpm start:worker:email
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sloctavi-db
+          property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: sloctavi-redis
+          property: connectionString
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /healthz

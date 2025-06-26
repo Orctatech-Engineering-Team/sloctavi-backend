@@ -25,7 +25,7 @@ const EnvSchema = z.object({
   SMTP_FROM: z.string().email(),
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_KEY: z.string().optional(),
-  REDIS_URL: z.string().url().optional(),
+  REDIS_URL: z.string().url(),
   REDIS_PASSWORD: z.string().optional(),
 }).superRefine((input, ctx) => {
   if (input.NODE_ENV === "production" && !input.DATABASE_AUTH_TOKEN) {

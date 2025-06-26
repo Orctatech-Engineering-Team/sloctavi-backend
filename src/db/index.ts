@@ -7,8 +7,7 @@ import * as authSchema from "./schema/auth";
 import * as schema from "./schema/schema";
 
 const client = postgres(env.DATABASE_URL, {
-  max: 10,
-  idle_timeout: 20,
+  prepare: false,
 });
 
 const db = drizzle(client, {

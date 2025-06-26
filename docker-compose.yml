@@ -1,41 +1,70 @@
+version: '3.8'
+
 services:
   app:
-    container_name: sloctavi-backend-dev
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app # Live bind mount
-      - /app/node_modules # Prevent node_modules overwrite
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - redis
-    command: ["pnpm", "dev"]
-
-  db:
-    image: postgres:15
-    container_name: sloctavi-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: sloctavi
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_AUTH_TOKEN=${DATABASE_AUTH_TOKEN}
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_FROM=${MAILGUN_FROM}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
-  redis:
-    image: redis:7
-    container_name: sloctavi-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redisdata:/data
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    command: pnpm start:worker:email
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_AUTH_TOKEN=${DATABASE_AUTH_TOKEN}
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_FROM=${MAILGUN_FROM}
+    depends_on:
+      - app
 
 volumes:
-  pgdata:
-  redisdata:
+  app_data:
+    driver: local
