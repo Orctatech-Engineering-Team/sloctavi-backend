@@ -11,6 +11,7 @@
     "lint:fix": "pnpm run lint --fix",
     "test": "cross-env NODE_ENV=test vitest",
     "build": "swc src --out-dir dist --config-file .swcrc && tsc-alias && powershell Copy-Item -Path package.json -Destination dist/",
+    "build:linux":"swc src --out-dir dist --config-file .swcrc && tsc-alias && cp package.json dist/",
     "migrate": "drizzle-kit push",
     "start:worker:email": "tsx src/scripts/worker-manager.ts start",
     "stop:worker:email": "tsx src/scripts/worker-manager.ts stop",
