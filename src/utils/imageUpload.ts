@@ -30,6 +30,7 @@ const metadataSchema = z.object({
   contentType: z.string(),
   size: z.number(),
   customMetadata: z.any().optional(),
+  uploadedAt: z.string().optional(),
 });
 
 // Type for the upload result
@@ -72,6 +73,7 @@ export class ImageUploader {
         name: file.name,
         contentType: file.type,
         size: file.size,
+        uploadedAt: new Date().toISOString(),
         ...metadata,
       });
 
