@@ -23,8 +23,9 @@ const EnvSchema = z.object({
   SMTP_USER: z.string(),
   SMTP_PASSWORD: z.string(),
   SMTP_FROM: z.string().email(),
-  SUPABASE_URL: z.string().url().optional(),
-  SUPABASE_KEY: z.string().optional(),
+  SUPABASE_URL: z.string().url(),
+  SUPABASE_KEY: z.string(),
+  SUPABASE_ANON_KEY: z.string(),
   REDIS_URL: z.string().url(),
   REDIS_PASSWORD: z.string().optional(),
 })
