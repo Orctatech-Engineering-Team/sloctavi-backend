@@ -34,7 +34,7 @@ export default function configureOpenAPI(app: AppOpenAPI) {
     },
     servers: [
       {
-        url: "https://api.smsx.dev",
+        url: "https://sloctavi-backend.onrender.com",
         description: "Production",
       },
       {
