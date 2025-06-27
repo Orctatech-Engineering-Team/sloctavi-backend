@@ -4,6 +4,7 @@ import env from "@/env";
 import configureOpenAPI from "@/lib/configure-open-api";
 import createApp from "@/lib/create-app";
 import auth from "@/modules/auth";
+import health from "@/modules/health";
 import bookings from "@/modules/bookings";
 import profile from "@/modules/profile";
 import index from "@/routes/index";
@@ -14,8 +15,16 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js';
 import { emailQueue } from "@/shared/services/mailer/queue";
 import { serveStatic } from "@hono/node-server/serve-static";
 import {showRoutes} from "hono/dev"
+import {cors} from "hono/cors";
 
 const app = createApp();
+// Enable CORS for all origins (safe for local testing, not for prod)
+app.use('*', cors({
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+}))
+
 
 configureOpenAPI(app);
 
@@ -33,9 +42,9 @@ const basePath = "/ui"
 serverAdapter.setBasePath(basePath)
 app.route(basePath, serverAdapter.registerPlugin())
 
-showRoutes(app)
 
-const publicRoutes = [auth] as const;
+
+const publicRoutes = [auth, health] as const;
 
 const routes = [index, profile, bookings] as const;
 
@@ -53,6 +62,9 @@ app.use(
 for (const route of routes) {
   app.route("/api", route);
 }
+
+showRoutes(app)
+
 export type AppType = (typeof routes)[number];
 
 export default app;
