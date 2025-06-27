@@ -16,10 +16,7 @@ export const uploadErrorSchema = z.object({
 });
 
 // Request body schemas
-export const uploadRequestBody = z.object({
-  file: z.instanceof(File),
-  userId: z.string(),
-});
+// Removed unused `uploadRequestBody` schema as it is not referenced in the codebase.
 
 export const deleteRequestBody = z.object({
   userId: z.string(),
