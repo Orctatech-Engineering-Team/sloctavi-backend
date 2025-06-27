@@ -4,7 +4,7 @@ import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 
 import { insertCustomerProfileSchema, insertProfessionalProfileSchema, insertUserSchema,selectCustomerProfileSchema, selectProfessionalProfileSchema } from "@/db/schema/schema";
 import { badRequestSchema, notFoundSchema, unauthorizedSchema } from "@/lib/constants";
-import { deleteRequestBody, profilePhotoUploadSchema, successResponseSchema, uploadErrorSchema, uploadRequestBody } from "./schema";
+import { deleteRequestBody, profilePhotoUploadSchema, successResponseSchema, uploadErrorSchema } from "./schema";
 
 // Create customer profile route
 export const createCustomerProfile = createRoute({
@@ -235,7 +235,6 @@ export const uploadProfilePhoto = createRoute({
         'multipart/form-data': {
           schema: z.object({
             file: z.instanceof(File),
-            message: z.string()
           })
         }
       }
