@@ -13,7 +13,19 @@ export const register = createRoute({
   tags,
   request: {
     body: jsonContentRequired(
-      insertUsersSchema,
+      insertUsersSchema.refine((data) => data.type === "customer" || data.type === "professional", {
+        message: "Invalid user type",
+        path:["type"]
+      }).refine((data) => data.email.length > 0 && data.email.includes("@"), {
+        message: "Email is required",
+        path:["email"]
+      }).refine((data) => data.password.length >= 8, {
+        message: "Password must be at least 8 characters long",
+        path:["password"]
+      }).refine((data) => data.password.length > 0, {
+        message: "Password is required",
+        path:["password"]
+      }),
       "User registration data",
     ),
   },
@@ -42,8 +54,8 @@ export const login = createRoute({
   request: {
     body: jsonContentRequired(
       z.object({
-        email: z.string().email(),
-        password: z.string(),
+        email: z.string().email().min(7, "Email is required"),
+        password: z.string().min(8, "Password is required"),
       }),
       "Login credentials",
     ),
