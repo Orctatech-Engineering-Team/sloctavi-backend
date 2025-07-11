@@ -28,6 +28,10 @@ const EnvSchema = z.object({
   SUPABASE_ANON_KEY: z.string(),
   REDIS_URL: z.string().url(),
   REDIS_PASSWORD: z.string().optional(),
+  BETTER_AUTH_SECRET: z.string(),
+  BETTER_AUTH_URL: z.string(),
+  MAIL_PROVIDER: z.enum(["nodemailer", "resend"]).default("nodemailer"),
+  RESEND_API_KEY: z.string().optional(),
 })
 
 export type env = z.infer<typeof EnvSchema>;

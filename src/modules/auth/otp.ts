@@ -7,6 +7,7 @@ import { MailService } from "@/shared/services/mailer/MailService";
 import { generateVerificationEmail } from "@/shared/services/mailer/utils";
 import { AppError } from "@/utils/error";
 import { logError, logInfo } from "@/utils/logger";
+import { ResendSender } from "@/shared/services/mailer/sender";
 
 export class OTPService {
   /**
@@ -28,7 +29,9 @@ export class OTPService {
 
       // Send email with OTP
       const emailPayload = generateVerificationEmail(otpCode, name, email);
-      await MailService.send(emailPayload);
+      const resend = new ResendSender()
+      resend.sendEmail(emailPayload);
+      // await MailService.send(emailPayload);
 
       logInfo(`OTP generated and sent`, {
         service: "OTPService",

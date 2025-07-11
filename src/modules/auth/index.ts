@@ -12,6 +12,8 @@ router
   .openapi(routes.logout, handlers.logout)
   .openapi(routes.verifyEmail, handlers.verifyEmail)
   .openapi(routes.checkVerificationStatus, handlers.checkVerificationStatus)
-  .openapi(routes.resendOTP, handlers.resendOTP);
+  .openapi(routes.resendOTP, handlers.resendOTP)
+  .openapi(routes.requestPasswordReset, handlers.requestPasswordReset)
+  .openapi(routes.resetPassword, handlers.resetPassword);
 
 export default router;

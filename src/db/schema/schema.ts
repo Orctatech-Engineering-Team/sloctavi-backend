@@ -71,6 +71,16 @@ export const emailVerifications = pgTable("email_verifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ----------------- PASSWORD RESET -----------------
+export const passwordResets = pgTable("password_resets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  isUsed: boolean("is_used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // ----------------- CUSTOMER PROFILE -----------------
 export const customerProfiles = pgTable("customer_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -251,6 +261,7 @@ export type Review = typeof reviews.$inferSelect;
 export type Availability = typeof availability.$inferSelect;
 export type BookingStatus = typeof bookingStatus.$inferSelect;
 export type EmailVerification = typeof emailVerifications.$inferSelect;
+export type PasswordReset = typeof passwordResets.$inferSelect;
 export type ServiceCategory = typeof serviceCategories.$inferSelect;
 export type ServiceTag = typeof serviceTags.$inferSelect;
 export type Tag = typeof tags.$inferSelect;
@@ -276,6 +287,7 @@ export type NewReview = typeof reviews.$inferInsert;
 export type NewAvailability = typeof availability.$inferInsert;
 export type NewBookingStatus = typeof bookingStatus.$inferInsert;
 export type NewEmailVerification = typeof emailVerifications.$inferInsert;
+export type NewPasswordReset = typeof passwordResets.$inferInsert;
 export type NewServiceCategory = typeof serviceCategories.$inferInsert;
 export type NewServiceTag = typeof serviceTags.$inferInsert;
 export type NewTag = typeof tags.$inferInsert;
