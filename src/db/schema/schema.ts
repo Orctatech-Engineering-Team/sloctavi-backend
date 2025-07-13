@@ -138,8 +138,8 @@ export const services = pgTable("services", {
 
 // ----------------- PROFESSIONAL_SERVICES (many-to-many) -----------------
 export const professionalServices = pgTable("professional_services", {
-  professionalId: uuid("professional_id").references(() => professionalProfiles.id, { onDelete: "cascade" }),
-  serviceId: integer("service_id").references(() => services.id, { onDelete: "cascade" }),
+  professionalId: uuid("professional_id").notNull().references(() => professionalProfiles.id, { onDelete: "cascade" }),
+  serviceId: integer("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
   price: numeric("price"), // professional-set price
   duration: integer("duration"), // professional-set duration in minutes
 }, table => ({
@@ -176,8 +176,8 @@ export const tags = pgTable("tags", {
 
 // ----------------- SERVICE TAGS (many-to-many) -----------------
 export const serviceTags = pgTable("service_tags", {
-  serviceId: integer("service_id").references(() => services.id, { onDelete: "cascade" }),
-  tagId: integer("tag_id").references(() => tags.id, { onDelete: "cascade" }),
+  serviceId: integer("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
+  tagId: integer("tag_id").notNull().references(() => tags.id, { onDelete: "cascade" }),
 }, table => ({
   pk: primaryKey({ columns: [table.serviceId, table.tagId] }),
 }));
