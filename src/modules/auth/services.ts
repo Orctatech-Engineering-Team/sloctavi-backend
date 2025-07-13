@@ -195,7 +195,7 @@ const Auth = {
 
   async cleanupExpiredPasswordResets() {
     return db.delete(passwordResets).where(
-      eq(passwordResets.expiresAt, new Date())
+      lt(passwordResets.expiresAt, new Date())
     );
   },
 };
