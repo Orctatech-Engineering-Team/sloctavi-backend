@@ -5,7 +5,7 @@ import {
   passwordResetTemplate,
 } from "./templates";
 
-// Enhanced utility functions for booking-related emails
+// Utility functions for OTP verification and password reset emails
 export function generateVerificationEmail(otpCode: string, username: string, email: string): EmailJobPayload {
   return {
     subject: "Verify your email for Sloctavi",
