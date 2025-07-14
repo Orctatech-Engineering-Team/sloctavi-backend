@@ -61,7 +61,7 @@ export const login = createRoute({
     body: jsonContentRequired(
       z.object({
         email: z.string().email().min(7, "Email must be at least 7 characters long"),
-        password: z.string().min(8, "Password is required"),
+        password: z.string().min(8, "Password must be at least 8 characters long"),
       }),
       "Login credentials",
     ),
