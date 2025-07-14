@@ -4,7 +4,7 @@ import { logError, logInfo } from "@/utils/logger";
 
 import type { EmailJobPayload } from "./types";
 
-import { NodemailerSender } from "./sender";
+import { createEmailSender } from "./sender";
 
 import client from "./client";
 
@@ -20,7 +20,7 @@ export async function startWorker() {
     "emailQueue",
     async (job) => {
       try {
-        const mailer = new NodemailerSender();
+        const mailer = createEmailSender();
         await mailer.sendEmail(job.data);
         logInfo(`Email sent to ${job.data.to}`, {
           service: "MailWorker",

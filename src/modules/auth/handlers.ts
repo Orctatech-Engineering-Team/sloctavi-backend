@@ -7,7 +7,7 @@ import type { AppRouteHandler } from "@/lib/types";
 
 import env from "@/env";
 
-import type { CheckVerificationStatusRoute, LoginRoute, LogoutRoute, RefreshRoute, RegisterRoute, ResendOTPRoute, VerifyEmailRoute } from "./routes";
+import type { CheckVerificationStatusRoute, LoginRoute, LogoutRoute, RefreshRoute, RegisterRoute, ResendOTPRoute, VerifyEmailRoute, RequestPasswordResetRoute, ResetPasswordRoute } from "./routes";
 
 import OTPService from "./otp";
 import Auth from "./services";
@@ -148,8 +148,9 @@ export const logout: AppRouteHandler<LogoutRoute> = async (c) => {
 
 export const verifyEmail: AppRouteHandler<VerifyEmailRoute> = async (c) => {
   try {
-    const { userId, otpCode } = c.req.valid("json");
-
+    const userId = c.get("jwtPayload")?.userId as string;
+    const {otpCode } = c.req.valid("json");
+    
     const isValid = await OTPService.verifyOTP(userId, otpCode);
 
     if (!isValid) {
@@ -208,13 +209,21 @@ export const resendOTP: AppRouteHandler<ResendOTPRoute> = async (c) => {
 
 export const checkVerificationStatus: AppRouteHandler<CheckVerificationStatusRoute> = async (c) => {
   try {
-    const userId = c.get("jwtPayload")?.userId;
-
+    const userId = c.get("jwtPayload")?.userId as string;
     if (!userId) {
-      return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
+      return c.json({
+        message: "User not authenticated",
+      }, HttpStatusCodes.UNAUTHORIZED);
     }
 
-    const requiresVerification = await OTPService.requiresVerification(userId);
+    const user = await Auth.getUser(userId);
+    if (!user) {
+      return c.json({
+        message: "User not found",
+      }, HttpStatusCodes.NOT_FOUND);
+    }
+
+    const requiresVerification = !user.isVerified;
 
     return c.json({
       isVerified: !requiresVerification,
@@ -227,8 +236,92 @@ export const checkVerificationStatus: AppRouteHandler<CheckVerificationStatusRou
 
     return c.json({
       message: "Failed to check verification status",
-      isVerified: false,
-      requiresVerification: true,
+    }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
+
+export const requestPasswordReset: AppRouteHandler<RequestPasswordResetRoute> = async (c) => {
+  const { email } = c.req.valid("json");
+  const logger = c.get("logger");
+
+  try {
+    const result = await Auth.createPasswordResetToken(email);
+    
+    if (!result) {
+      // Don't reveal if email exists or not for security
+      return c.json({
+        message: "If an account with that email exists, you will receive password reset instructions.",
+      }, HttpStatusCodes.OK);
+    }
+
+    const { passwordReset, user } = result;
+
+    // Send password reset email
+    try {
+      const { generatePasswordResetEmail } = await import("@/shared/services/mailer/utils");
+      const { ResendSender } = await import("@/shared/services/mailer/sender");
+      
+      // Use first name if available, otherwise fall back to "User"
+      const userName = user.email.split("@")[0] || "User";
+      
+      // Pass the raw reset token to the email generator
+      const emailPayload = generatePasswordResetEmail(userName, passwordReset.token, user.email);
+      
+      const resend = new ResendSender();
+      await resend.sendEmail(emailPayload);
+
+      logger.info(`Password reset email sent`, {
+        service: "Auth",
+        method: "requestPasswordReset",
+        userId: user.id,
+        email: user.email,
+      });
+    } catch (emailError) {
+      logger.error({ err: emailError }, "Failed to send password reset email");
+      // Even if email fails, don't expose this to user for security
+    }
+
+    return c.json({
+      message: "If an account with that email exists, you will receive password reset instructions.",
+    }, HttpStatusCodes.OK);
+  }
+  catch (error) {
+    logger.error({ err: error }, "Failed to create password reset token");
+
+    return c.json({
+      message: "Failed to process password reset request",
+    }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
+
+export const resetPassword: AppRouteHandler<ResetPasswordRoute> = async (c) => {
+  const { token, newPassword } = c.req.valid("json");
+  const logger = c.get("logger");
+
+  try {
+    const user = await Auth.resetPassword(token, newPassword);
+
+    if (!user) {
+      return c.json({
+        message: "Invalid or expired reset token",
+      }, HttpStatusCodes.BAD_REQUEST);
+    }
+
+    logger.info(`Password reset successful`, {
+      service: "Auth", 
+      method: "resetPassword",
+      userId: user.id,
+    });
+
+    return c.json({
+      message: "Password has been reset successfully",
+    }, HttpStatusCodes.OK);
+  }
+  catch (error) {
+    logger.error({ err: error }, "Failed to reset password");
+
+    return c.json({
+      message: "Failed to reset password",
     }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
   }
 };

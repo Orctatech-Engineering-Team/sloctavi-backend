@@ -3,7 +3,7 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 
 import { insertUsersSchema, selectUsersSchema } from "@/db/schema/schema";
-import { badRequestSchema, unauthorizedSchema } from "@/lib/constants";
+import { badRequestSchema, notFoundSchema, unauthorizedSchema } from "@/lib/constants";
 
 const tags = ["Auth"];
 
@@ -44,7 +44,13 @@ export const register = createRoute({
       }),
       "Validation error",
     ),
-  },
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      z.object({
+        message: z.string(),
+      }),
+      "Unprocessable entity",
+    ),
+  }
 });
 
 export const login = createRoute({
@@ -73,6 +79,10 @@ export const login = createRoute({
       unauthorizedSchema,
       "Invalid credentials",
     ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      badRequestSchema,
+      "Bad request, check your input",
+    ),
   },
 });
 
@@ -83,12 +93,16 @@ export const refreshToken = createRoute({
   responses: {
     [HttpStatusCodes.ACCEPTED]: jsonContent(
       z.object({
-        token: z.string(),
+        token: z.string(), // token here is the new access token
         message: z.string(),
       }),
       "New access token",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(unauthorizedSchema, "Invalid or expired refresh token"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      badRequestSchema,
+      "Invalid request, check your input",
+    ),
   },
 });
 
@@ -104,6 +118,10 @@ export const logout = createRoute({
       "Logout successful",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(unauthorizedSchema, "Not authenticated"),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      badRequestSchema,
+      "Bad request, check your input",
+    ),
   },
 });
 
@@ -114,7 +132,6 @@ export const verifyEmail = createRoute({
   request: {
     body: jsonContentRequired(
       z.object({
-        userId: z.string().uuid(),
         otpCode: z.string().length(4, "OTP must be 4 digits"),
       }),
       "Email verification data",
@@ -139,6 +156,10 @@ export const verifyEmail = createRoute({
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({ message: z.string() }),
       "Email verification failed",
+    ),
+    [HttpStatusCodes.CONFLICT]: jsonContent(
+      z.object({ message: z.string() }),
+      "Email already verified",
     ),
   },
 });
@@ -195,9 +216,88 @@ export const checkVerificationStatus = createRoute({
       "Verification status",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(unauthorizedSchema, "Authentication required"),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "User not found",
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({
+        message: z.string()
+      }),
+      "Error"
+    )
+  },
+});
+
+export const requestPasswordReset = createRoute({
+  path: "/auth/password-reset/request",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      z.object({
+        email: z.string().email(),
+      }),
+      "Email for password reset request",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({
+        message: z.string(),
+      }),
+      "Password reset email sent",
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      badRequestSchema,
+      "Invalid email format",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({ message: z.string() }),
+      "Email not found",
+    ),
+    [HttpStatusCodes.TOO_MANY_REQUESTS]: jsonContent(
+      z.object({ message: z.string() }),
+      "Rate limit exceeded",
+    ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       z.object({ message: z.string() }),
-      "Failed to check verification status",
+      "Failed to send password reset email",
+    ),
+  },
+});
+
+export const resetPassword = createRoute({
+  path: "/auth/password-reset/confirm",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      z.object({
+        token: z.string().min(1, "Reset token is required"),
+        newPassword: z.string().min(8, "Password must be at least 8 characters"),
+      }),
+      "Password reset confirmation data",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({
+        message: z.string(),
+      }),
+      "Password reset successful",
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      badRequestSchema,
+      "Invalid or expired reset token",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      z.object({ message: z.string() }),
+      "Reset token not found",
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      z.object({ message: z.string() }),
+      "Failed to reset password",
     ),
   },
 });
@@ -205,6 +305,8 @@ export const checkVerificationStatus = createRoute({
 export type VerifyEmailRoute = typeof verifyEmail;
 export type ResendOTPRoute = typeof resendOTP;
 export type CheckVerificationStatusRoute = typeof checkVerificationStatus;
+export type RequestPasswordResetRoute = typeof requestPasswordReset;
+export type ResetPasswordRoute = typeof resetPassword;
 
 export type RefreshRoute = typeof refreshToken;
 export type LogoutRoute = typeof logout;
