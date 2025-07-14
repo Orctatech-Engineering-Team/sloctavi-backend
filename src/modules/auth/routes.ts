@@ -15,16 +15,16 @@ export const register = createRoute({
     body: jsonContentRequired(
       insertUsersSchema.refine((data) => data.type === "customer" || data.type === "professional", {
         message: "Invalid user type",
-        path:["type"]
+        path: ["type"]
       }).refine((data) => data.email.length > 0 && data.email.includes("@"), {
         message: "Email is required",
-        path:["email"]
+        path: ["email"]
       }).refine((data) => data.password.length >= 8, {
         message: "Password must be at least 8 characters long",
-        path:["password"]
+        path: ["password"]
       }).refine((data) => data.password.length > 0, {
         message: "Password is required",
-        path:["password"]
+        path: ["password"]
       }),
       "User registration data",
     ),
