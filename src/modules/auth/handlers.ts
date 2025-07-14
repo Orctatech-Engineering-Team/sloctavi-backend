@@ -264,10 +264,8 @@ export const requestPasswordReset: AppRouteHandler<RequestPasswordResetRoute> = 
       // Use first name if available, otherwise fall back to "User"
       const userName = user.email.split("@")[0] || "User";
       
-      // Create the reset link with the frontend URL
-      const resetLink = `${env.BETTER_AUTH_URL}/reset-password?token=${passwordReset.token}`;
-      
-      const emailPayload = generatePasswordResetEmail(userName, resetLink, user.email);
+      // Pass the raw reset token to the email generator
+      const emailPayload = generatePasswordResetEmail(userName, passwordReset.token, user.email);
       
       const resend = new ResendSender();
       await resend.sendEmail(emailPayload);
