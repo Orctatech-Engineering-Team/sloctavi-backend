@@ -25,10 +25,10 @@ importers:
         version: 0.5.1(hono@4.7.4)
       '@hono/zod-openapi':
         specifier: ^0.18.4
-        version: 0.18.4(hono@4.7.4)(zod@3.24.2)
+        version: 0.18.4(hono@4.7.4)(zod@3.25.67)
       '@hono/zod-validator':
         specifier: ^0.5.0
-        version: 0.5.0(hono@4.7.4)(zod@3.24.2)
+        version: 0.5.0(hono@4.7.4)(zod@3.25.67)
       '@libsql/client':
         specifier: ^0.14.0
         version: 0.14.0
@@ -67,7 +67,7 @@ importers:
         version: 0.33.0(@electric-sql/pglite@0.3.1)(@libsql/client@0.14.0)(@types/better-sqlite3@7.6.11)(@types/pg@8.15.2)(better-sqlite3@11.3.0)(kysely@0.28.2)(pg@8.16.2)(postgres@3.4.7)(react@19.1.0)
       drizzle-zod:
         specifier: ^0.5.1
-        version: 0.5.1(drizzle-orm@0.33.0(@electric-sql/pglite@0.3.1)(@libsql/client@0.14.0)(@types/better-sqlite3@7.6.11)(@types/pg@8.15.2)(better-sqlite3@11.3.0)(kysely@0.28.2)(pg@8.16.2)(postgres@3.4.7)(react@19.1.0))(zod@3.24.2)
+        version: 0.5.1(drizzle-orm@0.33.0(@electric-sql/pglite@0.3.1)(@libsql/client@0.14.0)(@types/better-sqlite3@7.6.11)(@types/pg@8.15.2)(better-sqlite3@11.3.0)(kysely@0.28.2)(pg@8.16.2)(postgres@3.4.7)(react@19.1.0))(zod@3.25.67)
       hono:
         specifier: ^4.7.4
         version: 4.7.4
@@ -106,13 +106,13 @@ importers:
         version: 4.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       stoker:
         specifier: 1.4.2
-        version: 1.4.2(@asteasolutions/zod-to-openapi@7.1.2(zod@3.24.2))(@hono/zod-openapi@0.18.4(hono@4.7.4)(zod@3.24.2))(hono@4.7.4)(openapi3-ts@4.4.0)
+        version: 1.4.2(@asteasolutions/zod-to-openapi@7.1.2(zod@3.25.67))(@hono/zod-openapi@0.18.4(hono@4.7.4)(zod@3.25.67))(hono@4.7.4)(openapi3-ts@4.4.0)
       ws:
         specifier: ^8.18.2
         version: 8.18.2
       zod:
         specifier: ^3.24.2
-        version: 3.24.2
+        version: 3.25.67
     devDependencies:
       '@faker-js/faker':
         specifier: ^9.8.0
@@ -1431,8 +1431,8 @@ packages:
   '@types/node@22.13.10':
     resolution: {integrity: sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==}
 
-  '@types/node@22.15.33':
-    resolution: {integrity: sha512-wzoocdnnpSxZ+6CjW4ADCK1jVmd1S/J3ArNWfn8FDDQtRm8dkDg7TA+mvek2wNrfCgwuZxqEOiB9B1XCJ6+dbw==}
+  '@types/node@22.15.34':
+    resolution: {integrity: sha512-8Y6E5WUupYy1Dd0II32BsWAx5MWdcnRd8L84Oys3veg1YrYtNtzgO4CFhiBg6MDSjk7Ay36HYOnU7/tuOzIzcw==}
 
   '@types/nodemailer@6.4.17':
     resolution: {integrity: sha512-I9CCaIp6DTldEg7vyUTZi8+9Vo0hi1/T8gv3C89yk1rSAAzoKQ8H8ki/jBYJSFoH/BisgLP8tkZMlQ91CIquww==}
@@ -3583,15 +3583,15 @@ packages:
   zhead@2.2.4:
     resolution: {integrity: sha512-8F0OI5dpWIA5IGG5NHUg9staDwz/ZPxZtvGVf01j7vHqSyZ0raHY+78atOVxRqb73AotX22uV1pXt3gYSstGag==}
 
-  zod@3.24.2:
-    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
+  zod@3.25.67:
+    resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
 
 snapshots:
 
-  '@asteasolutions/zod-to-openapi@7.1.2(zod@3.24.2)':
+  '@asteasolutions/zod-to-openapi@7.1.2(zod@3.25.67)':
     dependencies:
       openapi3-ts: 4.4.0
-      zod: 3.24.2
+      zod: 3.25.67
 
   '@better-auth/utils@0.2.5':
     dependencies:
@@ -3985,22 +3985,22 @@ snapshots:
     dependencies:
       hono: 4.7.4
 
-  '@hono/zod-openapi@0.18.4(hono@4.7.4)(zod@3.24.2)':
+  '@hono/zod-openapi@0.18.4(hono@4.7.4)(zod@3.25.67)':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 7.1.2(zod@3.24.2)
-      '@hono/zod-validator': 0.4.1(hono@4.7.4)(zod@3.24.2)
+      '@asteasolutions/zod-to-openapi': 7.1.2(zod@3.25.67)
+      '@hono/zod-validator': 0.4.1(hono@4.7.4)(zod@3.25.67)
       hono: 4.7.4
-      zod: 3.24.2
+      zod: 3.25.67
 
-  '@hono/zod-validator@0.4.1(hono@4.7.4)(zod@3.24.2)':
+  '@hono/zod-validator@0.4.1(hono@4.7.4)(zod@3.25.67)':
     dependencies:
       hono: 4.7.4
-      zod: 3.24.2
+      zod: 3.25.67
 
-  '@hono/zod-validator@0.5.0(hono@4.7.4)(zod@3.24.2)':
+  '@hono/zod-validator@0.5.0(hono@4.7.4)(zod@3.25.67)':
     dependencies:
       hono: 4.7.4
-      zod: 3.24.2
+      zod: 3.25.67
 
   '@humanfs/core@0.19.1': {}
 
@@ -4354,7 +4354,7 @@ snapshots:
     dependencies:
       '@scalar/openapi-types': 0.1.9
       '@unhead/schema': 1.11.20
-      zod: 3.24.2
+      zod: 3.25.67
 
   '@sec-ant/readable-stream@0.4.1': {}
 
@@ -4506,7 +4506,7 @@ snapshots:
 
   '@types/better-sqlite3@7.6.11':
     dependencies:
-      '@types/node': 22.15.33
+      '@types/node': 22.15.34
     optional: true
 
   '@types/estree@1.0.6': {}
@@ -4528,7 +4528,7 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@types/node@22.15.33':
+  '@types/node@22.15.34':
     dependencies:
       undici-types: 6.21.0
     optional: true
@@ -5049,7 +5049,7 @@ snapshots:
   drizzle-zod@0.5.1(drizzle-orm@0.33.0(@electric-sql/pglite@0.3.1)(@libsql/client@0.14.0)(@types/better-sqlite3@7.6.11)(@types/pg@8.15.2)(better-sqlite3@11.3.0)(kysely@0.28.2)(pg@8.16.2)(postgres@3.4.7)(react@19.1.0))(zod@3.24.2):
     dependencies:
       drizzle-orm: 0.33.0(@electric-sql/pglite@0.3.1)(@libsql/client@0.14.0)(@types/better-sqlite3@7.6.11)(@types/pg@8.15.2)(better-sqlite3@11.3.0)(kysely@0.28.2)(pg@8.16.2)(postgres@3.4.7)(react@19.1.0)
-      zod: 3.24.2
+      zod: 3.25.67
 
   ecdsa-sig-formatter@1.0.11:
     dependencies:
@@ -6464,13 +6464,13 @@ snapshots:
 
   std-env@3.8.0: {}
 
-  stoker@1.4.2(@asteasolutions/zod-to-openapi@7.1.2(zod@3.24.2))(@hono/zod-openapi@0.18.4(hono@4.7.4)(zod@3.24.2))(hono@4.7.4)(openapi3-ts@4.4.0):
+  stoker@1.4.2(@asteasolutions/zod-to-openapi@7.1.2(zod@3.25.67))(@hono/zod-openapi@0.18.4(hono@4.7.4)(zod@3.25.67))(hono@4.7.4)(openapi3-ts@4.4.0):
     dependencies:
-      '@asteasolutions/zod-to-openapi': 7.1.2(zod@3.24.2)
+      '@asteasolutions/zod-to-openapi': 7.1.2(zod@3.25.67)
       hono: 4.7.4
       openapi3-ts: 4.4.0
     optionalDependencies:
-      '@hono/zod-openapi': 0.18.4(hono@4.7.4)(zod@3.24.2)
+      '@hono/zod-openapi': 0.18.4(hono@4.7.4)(zod@3.25.67)
 
   streamx@2.22.1:
     dependencies:
@@ -6768,4 +6768,4 @@ snapshots:
 
   zhead@2.2.4: {}
 
-  zod@3.24.2: {}
+  zod@3.25.67: {}
