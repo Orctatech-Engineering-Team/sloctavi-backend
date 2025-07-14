@@ -16,7 +16,7 @@ export const register = createRoute({
       insertUsersSchema.refine((data) => data.type === "customer" || data.type === "professional", {
         message: "Invalid user type",
         path: ["type"]
-      }).refine((data) => data.email.length > 0 && data.email.includes("@"), {
+      }).refine((data) => z.string().email().safeParse(data.email).success, {
         message: "Email is required",
         path: ["email"]
       }).refine((data) => data.password.length >= 8, {
