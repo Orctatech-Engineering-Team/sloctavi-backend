@@ -1,11 +1,10 @@
 import * as bcrypt from "bcrypt";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 
 import db from "@/db";
 import { refreshTokens } from "@/db/schema/auth";
-import { users, user_type, UserType, passwordResets } from "@/db/schema/schema";
-import { isValid } from "zod";
+import { users, UserType, passwordResets } from "@/db/schema/schema";
 
 const Auth = {
   async register(email: string, password: string, type: UserType) {

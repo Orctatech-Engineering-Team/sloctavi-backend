@@ -200,6 +200,7 @@ describe("Profile Service", () => {
   describe("updateCustomerProfile", () => {
     it("should update customer profile successfully", async () => {
       const mockData = {
+        userId: "user-123",
         firstName: "John Updated",
         lastName: "Doe Updated",
         phoneNumber: "+1234567890",
@@ -207,7 +208,6 @@ describe("Profile Service", () => {
 
       const mockProfile = {
         id: "profile-123",
-        userId: "user-123",
         ...mockData,
         otherNames: null,
         profileImage: null,
@@ -235,6 +235,7 @@ describe("Profile Service", () => {
   describe("updateProfessionalProfile", () => {
     it("should update professional profile successfully", async () => {
       const mockData = {
+        userId: "user-123",
         name: "Jane Updated",
         location: "Boston",
         description: "Senior designer",
@@ -243,7 +244,6 @@ describe("Profile Service", () => {
 
       const mockProfile = {
         id: "prof-123",
-        userId: "user-123",
         ...mockData,
         rating: null,
         status: null,

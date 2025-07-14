@@ -7,13 +7,16 @@ import auth from "@/modules/auth";
 import health from "@/modules/health";
 import bookings from "@/modules/bookings";
 import profile from "@/modules/profile";
+import services from "@/modules/services";
+import availability from "@/modules/availability";
+import professional from "@/modules/professional";
 import index from "@/routes/index";
 import { createWebSocketHandler } from "@/shared/services/notification/websocket";
-import { createBullBoard } from "@bull-board/api";
-import { HonoAdapter } from "@bull-board/hono";
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js';
-import { emailQueue } from "@/shared/services/mailer/queue";
-import { serveStatic } from "@hono/node-server/serve-static";
+// import { createBullBoard } from "@bull-board/api";
+// import { HonoAdapter } from "@bull-board/hono";
+// import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js';
+// import { emailQueue } from "@/shared/services/mailer/queue";
+// import { serveStatic } from "@hono/node-server/serve-static";
 import {showRoutes} from "hono/dev"
 import {cors} from "hono/cors";
 
@@ -31,22 +34,22 @@ configureOpenAPI(app);
 // WebSocket endpoint for real-time notifications
 app.get("/ws", createWebSocketHandler(app));
 
-const serverAdapter = new HonoAdapter(serveStatic)
+// const serverAdapter = new HonoAdapter(serveStatic)
 
-createBullBoard({
-  serverAdapter,
-  queues: [new BullMQAdapter(emailQueue)],
-})
+// createBullBoard({
+//   serverAdapter,
+//   queues: [new BullMQAdapter(emailQueue)],
+// })
 
-const basePath = "/ui"
-serverAdapter.setBasePath(basePath)
-app.route(basePath, serverAdapter.registerPlugin())
+// const basePath = "/ui"
+// serverAdapter.setBasePath(basePath)
+// app.route(basePath, serverAdapter.registerPlugin())
 
 
 
-const publicRoutes = [auth, health] as const;
+const publicRoutes = [auth, health, services] as const;
 
-const routes = [index, profile, bookings] as const;
+const routes = [index, profile, bookings, availability, professional] as const;
 
 for (const route of publicRoutes) {
   app.route("/api", route);

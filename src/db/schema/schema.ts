@@ -360,3 +360,24 @@ export const insertBookingStatusSchema = createInsertSchema(bookingStatus).omit(
   updatedAt: true,
 });
 export const selectBookingStatusSchema = createSelectSchema(bookingStatus);
+
+// Additional missing schemas
+export const selectCategorySchema = createSelectSchema(categories);
+export const selectTagSchema = createSelectSchema(tags);
+export const insertCategorySchema = createInsertSchema(categories).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const insertTagSchema = createInsertSchema(tags).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const selectProfessionalServiceSchema = createSelectSchema(professionalServices);
+export const insertProfessionalServiceSchema = createInsertSchema(professionalServices);
+export const insertAvailabilitySchema = createInsertSchema(availability).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
