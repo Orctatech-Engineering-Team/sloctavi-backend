@@ -9,5 +9,6 @@ export default defineConfig({
   },
   test: {
     setupFiles: ["./src/tests/setup.ts"],
+    testTimeout: 10000, // Set default timeout to 10 seconds
   },
 });

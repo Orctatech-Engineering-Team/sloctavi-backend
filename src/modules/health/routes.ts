@@ -21,12 +21,8 @@ export const health = createRoute({
             }),
             "Health check failed"
         ),
-        [HttpStatusCodes.UNAUTHORIZED]:jsonContent(
-            unauthorizedSchema,
-            "Authentication required"
-        ),
     },
-    security:[{bearerAuth:[]}]
+    // Remove security requirement for health check
 })
 
 export type HealthRoute = typeof health
