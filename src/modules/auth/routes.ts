@@ -60,7 +60,7 @@ export const login = createRoute({
   request: {
     body: jsonContentRequired(
       z.object({
-        email: z.string().email().min(7, "Email is required"),
+        email: z.string().email().min(7, "Email must be at least 7 characters long"),
         password: z.string().min(8, "Password is required"),
       }),
       "Login credentials",
