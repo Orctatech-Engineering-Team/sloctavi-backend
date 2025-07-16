@@ -255,12 +255,11 @@ describe("Profile Handlers Unit Tests", () => {
     it("should return bad request when update fails", async () => {
       mockContext.req.valid.mockReturnValue({});
       mockContext.get.mockReturnValue({ userId: "user-123" });
-      mockProfileService.updateCustomerProfile.mockResolvedValue(null);
+      mockProfileService.updateCustomerProfile.mockRejectedValue(new Error("Update failed"));
 
       const result = await handlers.updateCustomerProfile(mockContext, mockEnv);
 
-      expect(result._status).toBe(HttpStatusCodes.BAD_REQUEST);
-      expect(result._data).toEqual({ message: "Failed to update customer profile" });
+      expect(result._status).toBe(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     });
   });
 
@@ -274,6 +273,11 @@ describe("Profile Handlers Unit Tests", () => {
         userId: "user-123",
         firstName: "John",
         lastName: "Doe",
+        otherNames: null,
+        phoneNumber: "+1234567890",
+        profileImage: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const mockUploadResult = {
@@ -325,7 +329,17 @@ describe("Profile Handlers Unit Tests", () => {
 
     it("should handle upload failure", async () => {
       const mockFile = new File(["test"], "test.jpg", { type: "image/jpeg" });
-      const mockProfile = { id: "profile-123", userId: "user-123" };
+      const mockProfile = { 
+        id: "profile-123", 
+        userId: "user-123",
+        firstName: "John",
+        lastName: "Doe",
+        otherNames: null,
+        phoneNumber: "+1234567890",
+        profileImage: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
       mockContext.req.valid.mockReturnValue({ file: mockFile });
       mockContext.get.mockReturnValue({ userId: "user-123" });

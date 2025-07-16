@@ -1,5 +1,5 @@
 import * as bcrypt from "bcrypt";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 
 import db from "@/db";
