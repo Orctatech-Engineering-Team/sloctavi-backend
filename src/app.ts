@@ -7,6 +7,10 @@ import auth from "@/modules/auth";
 import health from "@/modules/health";
 import bookings from "@/modules/bookings";
 import profile from "@/modules/profile";
+import availability from "@/modules/availability";
+import services from "@/modules/services";
+import reviews from "@/modules/reviews";
+import dashboard from "@/modules/dashboard";
 import index from "@/routes/index";
 import { createWebSocketHandler } from "@/shared/services/notification/websocket";
 import { createBullBoard } from "@bull-board/api";
@@ -46,7 +50,7 @@ app.route(basePath, serverAdapter.registerPlugin())
 
 const publicRoutes = [auth, health] as const;
 
-const routes = [index, profile, bookings] as const;
+const routes = [index, profile, bookings, availability, services, reviews, dashboard] as const;
 
 for (const route of publicRoutes) {
   app.route("/api", route);
