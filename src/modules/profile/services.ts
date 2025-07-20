@@ -76,12 +76,23 @@ export const profileService = {
       );
     }
   },
-  async updateCustomerProfile(userId: string, data: NewCustomerProfile): Promise<CustomerProfile> {
+  async updateCustomerProfile(userId: string, data: Partial<NewCustomerProfile>): Promise<CustomerProfile> {
     try {
+      const existingProfile = await this.getCustomerProfile(userId);
+      if (!existingProfile) {
+        throw new AppError(
+          "Customer profile not found",
+          HttpStatusCodes.NOT_FOUND,
+        );
+      }
+      
       const customer = await db.update(customerProfiles).set(data).where(eq(customerProfiles.userId, userId)).returning();
       return customer[0];
     }
     catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
       throw new AppError(
         "Failed to update customer profile",
         HttpStatusCodes.INTERNAL_SERVER_ERROR,
@@ -91,12 +102,23 @@ export const profileService = {
       );
     }
   },
-  async updateProfessionalProfile(userId: string, data: NewProfessionalProfile): Promise<ProfessionalProfile> {
+  async updateProfessionalProfile(userId: string, data: Partial<NewProfessionalProfile>): Promise<ProfessionalProfile> {
     try {
+      const existingProfile = await this.getProfessionalProfile(userId);
+      if (!existingProfile) {
+        throw new AppError(
+          "Professional profile not found",
+          HttpStatusCodes.NOT_FOUND,
+        );
+      }
+      
       const professionalProfile = await db.update(professionalProfiles).set(data).where(eq(professionalProfiles.userId, userId)).returning();
       return professionalProfile[0];
     }
     catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
       throw new AppError(
         "Failed to update professional profile",
         HttpStatusCodes.INTERNAL_SERVER_ERROR,
@@ -136,16 +158,33 @@ export const profileService = {
       );
     }
   },
-  async updateProfilePhoto(userId: string, photoUrl: string) {
+  async updateProfilePhoto(userId: string, photoUrl: string, thumbnailUrl?: string) {
     try {
-      await db.update(customerProfiles)
-        .set({ profileImage: photoUrl })
-        .where(eq(customerProfiles.userId, userId));
+      const customerProfile = await this.getCustomerProfile(userId);
+      const professionalProfile = await this.getProfessionalProfile(userId);
       
-      await db.update(professionalProfiles)
-        .set({ profileImage: photoUrl })
-        .where(eq(professionalProfiles.userId, userId));
+      if (!customerProfile && !professionalProfile) {
+        throw new AppError(
+          "No profile found for user",
+          HttpStatusCodes.NOT_FOUND,
+        );
+      }
+      
+      if (customerProfile) {
+        await db.update(customerProfiles)
+          .set({ profileImage: photoUrl })
+          .where(eq(customerProfiles.userId, userId));
+      }
+      
+      if (professionalProfile) {
+        await db.update(professionalProfiles)
+          .set({ profileImage: photoUrl })
+          .where(eq(professionalProfiles.userId, userId));
+      }
     } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
       throw new AppError(
         "Failed to update profile photo",
         HttpStatusCodes.INTERNAL_SERVER_ERROR,
@@ -157,14 +196,31 @@ export const profileService = {
   },
   async removeProfilePhoto(userId: string) {
     try {
-      await db.update(customerProfiles)
-        .set({ profileImage: null })
-        .where(eq(customerProfiles.userId, userId));
+      const customerProfile = await this.getCustomerProfile(userId);
+      const professionalProfile = await this.getProfessionalProfile(userId);
       
-      await db.update(professionalProfiles)
-        .set({ profileImage: null })
-        .where(eq(professionalProfiles.userId, userId));
+      if (!customerProfile && !professionalProfile) {
+        throw new AppError(
+          "No profile found for user",
+          HttpStatusCodes.NOT_FOUND,
+        );
+      }
+      
+      if (customerProfile) {
+        await db.update(customerProfiles)
+          .set({ profileImage: null })
+          .where(eq(customerProfiles.userId, userId));
+      }
+      
+      if (professionalProfile) {
+        await db.update(professionalProfiles)
+          .set({ profileImage: null })
+          .where(eq(professionalProfiles.userId, userId));
+      }
     } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
       throw new AppError(
         "Failed to remove profile photo",
         HttpStatusCodes.INTERNAL_SERVER_ERROR,

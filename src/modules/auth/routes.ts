@@ -4,6 +4,7 @@ import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 
 import { insertUsersSchema, selectUsersSchema } from "@/db/schema/schema";
 import { badRequestSchema, notFoundSchema, unauthorizedSchema } from "@/lib/constants";
+import { user } from "@/db/schema/auth-schema";
 
 const tags = ["Auth"];
 
@@ -132,6 +133,7 @@ export const verifyEmail = createRoute({
   request: {
     body: jsonContentRequired(
       z.object({
+        userId: z.string().uuid("Invalid user ID"),
         otpCode: z.string().length(4, "OTP must be 4 digits"),
       }),
       "Email verification data",

@@ -1,7 +1,10 @@
 import * as HttpStatusCodes from "stoker/http-status-codes";
+import { eq } from "drizzle-orm";
 
 import type { AppRouteHandler } from "@/lib/types";
-import { logInfo, logError } from "@/utils/logger";
+import { AppError } from "@/utils/error";
+import db from "@/db";
+import { professionalProfiles } from "@/db/schema/schema";
 
 import { servicesService } from "./services";
 import type { 
@@ -9,168 +12,194 @@ import type {
   CreateServiceRoute, 
   UpdateServiceRoute, 
   DeleteServiceRoute,
-  GetProfessionsRoute 
+  GetProfessionsRoute,
+  GetProfessionalServicesRoute,
+  AddProfessionalServiceRoute,
+  UpdateProfessionalServiceRoute,
+  RemoveProfessionalServiceRoute,
+  DiscoverServicesRoute,
+  GetProfessionalsByServiceRoute
 } from "./routes";
 
 export const getServices: AppRouteHandler<GetServicesRoute> = async (c) => {
-  try {
-    const { professionId, limit, offset } = c.req.valid("query");
+  const query = c.req.valid("query");
+  
+  // Parse comma-separated arrays
+  const categoryIds = query.categoryIds 
+    ? query.categoryIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+    : undefined;
+    
+  const tagIds = query.tagIds 
+    ? query.tagIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+    : undefined;
 
-    const result = await servicesService.getServices(professionId, limit, offset);
+  const filters = {
+    professionId: query.professionId,
+    search: query.search,
+    categoryIds,
+    tagIds,
+    minPrice: query.minPrice,
+    maxPrice: query.maxPrice,
+    minDuration: query.minDuration,
+    maxDuration: query.maxDuration,
+    sortBy: query.sortBy,
+    sortOrder: query.sortOrder,
+    location: query.location,
+    isActive: query.isActive,
+    limit: query.limit,
+    offset: query.offset,
+  };
 
-    logInfo("Services retrieved", {
-      service: "ServicesHandler",
-      method: "getServices",
-      professionId,
-      count: result.services.length,
-      total: result.total,
-    });
-
-    return c.json(result, HttpStatusCodes.OK);
-  } catch (error: any) {
-    logError(error, "Failed to retrieve services", {
-      service: "ServicesHandler",
-      method: "getServices",
-    });
-
-    return c.json(
-      { message: "Internal server error" },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
+  const result = await servicesService.getServices(filters);
+  return c.json(result, HttpStatusCodes.OK);
 };
 
 export const createService: AppRouteHandler<CreateServiceRoute> = async (c) => {
-  try {
-    const data = c.req.valid("json");
-    const userId = c.get("jwtPayload")?.userId;
+  const data = c.req.valid("json");
+  const userId = c.get("jwtPayload")?.userId;
 
-    if (!userId) {
-      return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
-    }
-
-    // For now, allow any authenticated user to create services
-    // In the future, you might want to restrict this to admins only
-    const service = await servicesService.createService(data);
-
-    logInfo("Service created", {
-      service: "ServicesHandler",
-      method: "createService",
-      serviceId: service.id,
-      userId,
-    });
-
-    return c.json(service, HttpStatusCodes.CREATED);
-  } catch (error: any) {
-    logError(error, "Failed to create service", {
-      service: "ServicesHandler",
-      method: "createService",
-    });
-
-    if (error.statusCode) {
-      return c.json({ message: error.message }, error.statusCode);
-    }
-
-    return c.json(
-      { message: "Internal server error" },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
+  if (!userId) {
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
+
+  // For now, allow any authenticated user to create services
+  // In the future, you might want to restrict this to admins only
+  const service = await servicesService.createService(data);
+  return c.json(service, HttpStatusCodes.CREATED);
 };
 
 export const updateService: AppRouteHandler<UpdateServiceRoute> = async (c) => {
-  try {
-    const { id } = c.req.valid("param");
-    const data = c.req.valid("json");
-    const userId = c.get("jwtPayload")?.userId;
+  const { id } = c.req.valid("param");
+  const data = c.req.valid("json");
+  const userId = c.get("jwtPayload")?.userId;
 
-    if (!userId) {
-      return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
-    }
-
-    const service = await servicesService.updateService(id, data);
-
-    logInfo("Service updated", {
-      service: "ServicesHandler",
-      method: "updateService",
-      serviceId: id,
-      userId,
-    });
-
-    return c.json(service, HttpStatusCodes.OK);
-  } catch (error: any) {
-    logError(error, "Failed to update service", {
-      service: "ServicesHandler",
-      method: "updateService",
-    });
-
-    if (error.statusCode) {
-      return c.json({ message: error.message }, error.statusCode);
-    }
-
-    return c.json(
-      { message: "Internal server error" },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
+  if (!userId) {
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
+
+  const service = await servicesService.updateService(id, data);
+  return c.json(service, HttpStatusCodes.OK);
 };
 
 export const deleteService: AppRouteHandler<DeleteServiceRoute> = async (c) => {
-  try {
-    const { id } = c.req.valid("param");
-    const userId = c.get("jwtPayload")?.userId;
+  const { id } = c.req.valid("param");
+  const userId = c.get("jwtPayload")?.userId;
 
-    if (!userId) {
-      return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
-    }
-
-    await servicesService.deleteService(id);
-
-    logInfo("Service deleted", {
-      service: "ServicesHandler",
-      method: "deleteService",
-      serviceId: id,
-      userId,
-    });
-
-    return c.json({ message: "Service deleted successfully" }, HttpStatusCodes.OK);
-  } catch (error: any) {
-    logError(error, "Failed to delete service", {
-      service: "ServicesHandler",
-      method: "deleteService",
-    });
-
-    if (error.statusCode) {
-      return c.json({ message: error.message }, error.statusCode);
-    }
-
-    return c.json(
-      { message: "Internal server error" },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
+  if (!userId) {
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
+
+  await servicesService.deleteService(id);
+  return c.json({ message: "Service deleted successfully" }, HttpStatusCodes.OK);
 };
 
 export const getProfessions: AppRouteHandler<GetProfessionsRoute> = async (c) => {
-  try {
-    const professions = await servicesService.getProfessions();
+  const professions = await servicesService.getProfessions();
+  return c.json(professions, HttpStatusCodes.OK);
+};
 
-    logInfo("Professions retrieved", {
-      service: "ServicesHandler",
-      method: "getProfessions",
-      count: professions.length,
-    });
+// Professional Services Management Handlers
+export const getProfessionalServices: AppRouteHandler<GetProfessionalServicesRoute> = async (c) => {
+  const { professionalId } = c.req.valid("query");
+  const userId = c.get("jwtPayload")?.userId;
 
-    return c.json(professions, HttpStatusCodes.OK);
-  } catch (error: any) {
-    logError(error, "Failed to retrieve professions", {
-      service: "ServicesHandler",
-      method: "getProfessions",
-    });
-
-    return c.json(
-      { message: "Internal server error" },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
+  if (!userId) {
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
+
+  let queryProfessionalId = professionalId;
+
+  // If no professionalId provided, get current user's professional profile
+  if (!queryProfessionalId) {
+    const professional = await db.query.professionalProfiles.findFirst({
+      where: eq(professionalProfiles.userId, userId),
+    });
+
+    if (!professional) {
+      throw new AppError("Professional profile not found", HttpStatusCodes.NOT_FOUND);
+    }
+
+    queryProfessionalId = professional.id;
+  }
+
+  const professionalServices = await servicesService.getProfessionalServices(queryProfessionalId);
+  return c.json(professionalServices, HttpStatusCodes.OK);
+};
+
+export const addProfessionalService: AppRouteHandler<AddProfessionalServiceRoute> = async (c) => {
+  const data = c.req.valid("json");
+  const userId = c.get("jwtPayload")?.userId;
+
+  if (!userId) {
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
+  }
+
+  // Get professional profile for this user
+  const professional = await db.query.professionalProfiles.findFirst({
+    where: eq(professionalProfiles.userId, userId),
+  });
+
+  if (!professional) {
+    throw new AppError("Professional profile not found", HttpStatusCodes.NOT_FOUND);
+  }
+
+  const professionalService = await servicesService.addProfessionalService(professional.id, data);
+  return c.json(professionalService, HttpStatusCodes.CREATED);
+};
+
+export const updateProfessionalService: AppRouteHandler<UpdateProfessionalServiceRoute> = async (c) => {
+  const { serviceId } = c.req.valid("param");
+  const data = c.req.valid("json");
+  const userId = c.get("jwtPayload")?.userId;
+
+  if (!userId) {
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
+  }
+
+  // Get professional profile for this user
+  const professional = await db.query.professionalProfiles.findFirst({
+    where: eq(professionalProfiles.userId, userId),
+  });
+
+  if (!professional) {
+    throw new AppError("Professional profile not found", HttpStatusCodes.NOT_FOUND);
+  }
+
+  const professionalService = await servicesService.updateProfessionalService(professional.id, serviceId, data);
+  return c.json(professionalService, HttpStatusCodes.OK);
+};
+
+export const removeProfessionalService: AppRouteHandler<RemoveProfessionalServiceRoute> = async (c) => {
+  const { serviceId } = c.req.valid("param");
+  const userId = c.get("jwtPayload")?.userId;
+
+  if (!userId) {
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
+  }
+
+  // Get professional profile for this user
+  const professional = await db.query.professionalProfiles.findFirst({
+    where: eq(professionalProfiles.userId, userId),
+  });
+
+  if (!professional) {
+    throw new AppError("Professional profile not found", HttpStatusCodes.NOT_FOUND);
+  }
+
+  await servicesService.removeProfessionalService(professional.id, serviceId);
+  return c.json({ message: "Professional service removed successfully" }, HttpStatusCodes.OK);
+};
+
+// Service Discovery Handlers
+export const discoverServices: AppRouteHandler<DiscoverServicesRoute> = async (c) => {
+  const { professionId, location, priceRange, limit, offset } = c.req.valid("query");
+  const result = await servicesService.discoverServices(professionId, location, priceRange, limit, offset);
+  return c.json(result, HttpStatusCodes.OK);
+};
+
+export const getProfessionalsByService: AppRouteHandler<GetProfessionalsByServiceRoute> = async (c) => {
+  const { serviceId } = c.req.valid("param");
+  const { location, priceRange, limit, offset } = c.req.valid("query");
+  const result = await servicesService.getProfessionalsByService(serviceId, location, priceRange, limit, offset);
+  return c.json(result, HttpStatusCodes.OK);
 };

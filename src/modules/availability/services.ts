@@ -25,19 +25,28 @@ export const availabilityService = {
         );
       }
 
-      // Check for overlapping availability
-      const existing = await db.query.availability.findFirst({
+      // Check for overlapping availability (improved logic)
+      const existingSlots = await db.query.availability.findMany({
         where: and(
           eq(availability.professionalId, professionalId),
           eq(availability.day, data.day),
         ),
       });
 
-      if (existing) {
-        throw new AppError(
-          "Availability already exists for this day",
-          HttpStatusCodes.BAD_REQUEST,
-        );
+      // Check if the new time slot overlaps with existing ones
+      for (const slot of existingSlots) {
+        const existingStart = slot.fromTime;
+        const existingEnd = slot.toTime;
+        const newStart = data.fromTime;
+        const newEnd = data.toTime;
+
+        // Check for overlap: new slot starts before existing ends AND new slot ends after existing starts
+        if (newStart < existingEnd && newEnd > existingStart) {
+          throw new AppError(
+            `Time slot overlaps with existing availability (${existingStart} - ${existingEnd})`,
+            HttpStatusCodes.BAD_REQUEST,
+          );
+        }
       }
 
       const [newAvailability] = await db

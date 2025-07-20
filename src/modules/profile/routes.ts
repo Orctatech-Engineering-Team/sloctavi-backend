@@ -2,7 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 
-import { insertCustomerProfileSchema, insertProfessionalProfileSchema, insertUserSchema,selectCustomerProfileSchema, selectProfessionalProfileSchema } from "@/db/schema/schema";
+import { insertCustomerProfileSchema, insertProfessionalProfileSchema, insertUserSchema, selectCustomerProfileSchema, selectProfessionalProfileSchema, updateCustomerProfileSchema, updateProfessionalProfileSchema } from "@/db/schema/schema";
 import { badRequestSchema, notFoundSchema, unauthorizedSchema } from "@/lib/constants";
 import { deleteRequestBody, profilePhotoUploadSchema, successResponseSchema, uploadErrorSchema } from "./schema";
 
@@ -151,7 +151,7 @@ export const updateCustomerProfile = createRoute({
   ],
   request: {
     body: jsonContentRequired(
-      insertCustomerProfileSchema,
+      updateCustomerProfileSchema,
       "Customer profile data"
     ),
   },
@@ -191,7 +191,7 @@ export const updateProfessionalProfile = createRoute({
   ],
   request: {
     body: jsonContentRequired(
-      insertProfessionalProfileSchema,
+      updateProfessionalProfileSchema,
       "Professional profile data"
     ),
   },

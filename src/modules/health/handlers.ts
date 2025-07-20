@@ -3,6 +3,7 @@ import { HealthRoute } from "./routes";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { dbPing } from "@/shared/lib";
 import { redisPing } from "@/shared/lib";
+import { wsHealthCheck } from "@/shared/services/notification/websocket";
 
 export const healthHandler: AppRouteHandler<HealthRoute> = async(c) => {
     const results: Record<string, string> = {}
@@ -25,6 +26,14 @@ export const healthHandler: AppRouteHandler<HealthRoute> = async(c) => {
     } catch (e) {
       results.redis = 'fail'
     }
+
+    // WebSocket Check
+    try {
+      const wsHealth = await wsHealthCheck()
+      results.websocket = wsHealth.healthy ? 'ok' : 'fail'
+    } catch (e) {
+      results.websocket = 'fail'
+    }
   
     const allHealthy = Object.values(results).every((v) => v === 'ok')
    return c.json({
@@ -39,6 +48,9 @@ export const healthHandler: AppRouteHandler<HealthRoute> = async(c) => {
     },
     redis:{
         status:results.redis,
+    },
+    websocket:{
+        status:results.websocket,
     }
    },HttpStatusCodes.OK)
 }

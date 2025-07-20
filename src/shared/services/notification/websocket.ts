@@ -1,6 +1,3 @@
-import type { OpenAPIHono } from "@hono/zod-openapi";
-
-import { createNodeWebSocket } from "@hono/node-ws";
 import { eq } from "drizzle-orm";
 import { jwtVerify } from "jose";
 import { WebSocket } from "ws"; // Explicitly import WebSocket from ws
@@ -21,7 +18,7 @@ interface WebSocketConnection {
 }
 
 interface NotificationPayload {
-  type: "booking_created" | "booking_updated" | "booking_cancelled" | "status_changed" | "connection_established" | "pong";
+  type: "booking_created" | "booking_updated" | "booking_cancelled" | "status_changed" | "connection_established" | "pong" | "profile_updated";
   bookingId?: string;
   title?: string;
   message: string;
@@ -290,10 +287,8 @@ async function getUserById(userId: string) {
   }
 }
 
-export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
-  const { upgradeWebSocket } = createNodeWebSocket({ app });
-
-  return upgradeWebSocket(async (c) => {
+export function createWebSocketHandler(upgradeWebSocket: any) {
+  return upgradeWebSocket(async (c: any) => {
     const token = c.req.query("token") || c.req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
@@ -303,7 +298,7 @@ export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
         ip: c.req.header("x-forwarded-for") || c.req.header("x-real-ip"),
       });
       return {
-        onMessage(event, ws) {
+        onMessage(_event: any, ws: any) {
           logInfo("WebSocket connection rejected: No token provided", {
             service: "WebSocketHandler",
             method: "onMessage",
@@ -320,7 +315,7 @@ export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
         method: "createWebSocketHandler",
       });
       return {
-        onMessage(event, ws) {
+        onMessage(_event: any, ws: any) {
           ws.close(1011, "Internal error: Server configuration missing");
         },
       };
@@ -336,7 +331,7 @@ export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
           method: "createWebSocketHandler",
         });
         return {
-          onMessage(event, ws) {
+          onMessage(_event: any, ws: any) {
             logInfo("WebSocket connection rejected: Invalid token payload", {
               service: "WebSocketHandler",
               method: "onMessage",
@@ -356,14 +351,14 @@ export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
           userType: user?.type,
         });
         return {
-          onMessage(event, ws) {
+          onMessage(_event: any, ws: any) {
             ws.close(1008, "Unauthorized: Invalid user or user type");
           },
         };
       }
 
       return {
-        onOpen(evt, ws) {
+        onOpen(_evt: any, ws: any) {
           if (!ws.raw) {
             logError(new Error("WebSocket raw instance is undefined"), "Failed to add connection: ws.raw is undefined", {
               service: "WebSocketHandler",
@@ -394,7 +389,7 @@ export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
           }
         },
 
-        onMessage(evt, ws) {
+        onMessage(evt: any, ws: any) {
           try {
             const data = JSON.parse(evt.data.toString());
 
@@ -451,7 +446,7 @@ export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
           }
         },
 
-        onClose(evt, ws) {
+        onClose(evt: any, ws: any) {
           if (!ws.raw) {
             console.error("WebSocket raw instance is undefined");
             return; // Avoid proceeding without ws.raw
@@ -471,7 +466,7 @@ export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
           }
         },
 
-        onError(evt, ws) {
+        onError(evt: any, ws: any) {
           if (!ws.raw) {
             console.error("WebSocket raw instance is undefined");
             return; // Avoid proceeding without ws.raw
@@ -496,7 +491,7 @@ export function createWebSocketHandler(app: OpenAPIHono<AppBindings>) {
         method: "createWebSocketHandler",
       });
       return {
-        onMessage(event, ws) {
+        onMessage(_event: any, ws: any) {
           logInfo("WebSocket connection rejected: Authentication failed", {
             service: "WebSocketHandler",
             method: "onMessage",
