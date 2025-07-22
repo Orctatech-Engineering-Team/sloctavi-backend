@@ -3,8 +3,10 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { AppRouteHandler } from "@/lib/types";
 
 import type { CreateCustomerProfile, CreateProfessionalProfileRoute, GetCustomerProfileRoute, GetProfessionalProfileRoute, UploadProfilePhotoRoute, DeleteProfilePhotoRoute, UpdateCustomerProfileRoute, UpdateProfessionalProfileRoute } from "./routes";
-import { ImageUploader } from '@/utils/imageUpload';
+import { ImageUploader, DEFAULT_PROFILE_OPTIONS, type ImageProcessingOptions } from '@/utils/imageUpload';
+import { notificationService } from '@/shared/services/notification';
 import env from '@/env';
+import { AppError } from '@/utils/error';
 
 const imageUploader = new ImageUploader(
   env.SUPABASE_URL,
@@ -18,59 +20,50 @@ export const createCustomerProfile: AppRouteHandler<CreateCustomerProfile> = asy
   const data = c.req.valid("json");
   const userId = c.get("jwtPayload")?.userId;
   if (!userId) {
-    return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
   const contactData = {
     ...data,
     userId,
   };
   const contact = await profileService.createCustomerProfile(contactData);
-  if (!contact) {
-    return c.json({ message: "Failed to create customer profile" }, HttpStatusCodes.BAD_REQUEST);
-  }
-
   return c.json(contact, HttpStatusCodes.CREATED);
 };
 
 export const getCustomerProfile: AppRouteHandler<GetCustomerProfileRoute> = async (c) => {
   const userId = c.get("jwtPayload")?.userId;
-
   if (!userId) {
-    return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
   const profile = await profileService.getCustomerProfile(userId);
   if (!profile) {
-    return c.json({ message: "Customer profile not found" }, HttpStatusCodes.NOT_FOUND);
+    throw new AppError("Customer profile not found", HttpStatusCodes.NOT_FOUND);
   }
   return c.json(profile, HttpStatusCodes.OK);
 };
 
 export const createProfessionalProfile: AppRouteHandler<CreateProfessionalProfileRoute> = async (c) => {
   const data = c.req.valid("json");
-  const userId = c.get("jwt").jwtPayload?.userId;
+  const userId = c.get("jwtPayload")?.userId;
   if (!userId) {
-    return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
   const profileData = {
     ...data,
     userId,
   };
   const profile = await profileService.createProfessionalProfile(profileData);
-  if (!profile) {
-    return c.json({ message: "Failed to create professional profile" }, HttpStatusCodes.BAD_REQUEST);
-  }
-
   return c.json(profile, HttpStatusCodes.CREATED);
 };
 
 export const getProfessionalProfile: AppRouteHandler<GetProfessionalProfileRoute> = async (c) => {
-  const userId = c.get("jwt").jwtPayload?.userId;
+  const userId = c.get("jwtPayload")?.userId;
   if (!userId) {
-    return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
   const profile = await profileService.getProfessionalProfile(userId);
   if (!profile) {
-    return c.json({ message: "Professional profile not found" }, HttpStatusCodes.NOT_FOUND);
+    throw new AppError("Professional profile not found", HttpStatusCodes.NOT_FOUND);
   }
   return c.json(profile, HttpStatusCodes.OK);
 };
@@ -79,17 +72,41 @@ export const updateCustomerProfile: AppRouteHandler<UpdateCustomerProfileRoute> 
   const data = c.req.valid("json");
   const userId = c.get("jwtPayload")?.userId;
   if (!userId) {
-    return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
-  const profileData = {
-    ...data,
-    userId,
-  };
-  const profile = await profileService.updateCustomerProfile(userId, profileData);
-  if (!profile) {
-    return c.json({ message: "Failed to update customer profile" }, HttpStatusCodes.BAD_REQUEST);
+  
+  // Get current profile for comparison
+  const currentProfile = await profileService.getCustomerProfile(userId);
+  
+  const profile = await profileService.updateCustomerProfile(userId, data);
+  
+  // Send notification for significant profile changes
+  try {
+    const significantChanges = [];
+    
+    if (currentProfile && data.phoneNumber && currentProfile.phoneNumber !== data.phoneNumber) {
+      significantChanges.push('phone number');
+    }
+    
+    if (currentProfile && (data.firstName || data.lastName) && 
+        (currentProfile.firstName !== data.firstName || currentProfile.lastName !== data.lastName)) {
+      significantChanges.push('name');
+    }
+    
+    if (significantChanges.length > 0) {
+      await notificationService.sendProfileUpdateNotification({
+        userId,
+        userType: 'customer',
+        updateType: 'profile_update',
+        changes: significantChanges,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch (notificationError) {
+    // Log but don't fail the request
+    console.error('Failed to send profile update notification:', notificationError);
   }
-
+  
   return c.json(profile, HttpStatusCodes.OK);
 };
 
@@ -97,17 +114,52 @@ export const updateProfessionalProfile: AppRouteHandler<UpdateProfessionalProfil
   const data = c.req.valid("json");
   const userId = c.get("jwtPayload")?.userId;
   if (!userId) {
-    return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
   }
-  const profileData = {
-    ...data,
-    userId,
-  };
-  const profile = await profileService.updateProfessionalProfile(userId, profileData);
-  if (!profile) {
-    return c.json({ message: "Failed to update professional profile" }, HttpStatusCodes.BAD_REQUEST);
+  
+  // Get current profile for comparison
+  const currentProfile = await profileService.getProfessionalProfile(userId);
+  
+  const profile = await profileService.updateProfessionalProfile(userId, data);
+  
+  // Send notification for significant profile changes
+  try {
+    const significantChanges = [];
+    
+    if (currentProfile && data.name && currentProfile.name !== data.name) {
+      significantChanges.push('business name');
+    }
+    
+    if (currentProfile && data.location && currentProfile.location !== data.location) {
+      significantChanges.push('location');
+    }
+    
+    if (currentProfile && data.description && currentProfile.description !== data.description) {
+      significantChanges.push('description');
+    }
+    
+    if (currentProfile && data.yearsOfExperience && currentProfile.yearsOfExperience !== data.yearsOfExperience) {
+      significantChanges.push('experience');
+    }
+    
+    if (currentProfile && data.status && currentProfile.status !== data.status) {
+      significantChanges.push('availability status');
+    }
+    
+    if (significantChanges.length > 0) {
+      await notificationService.sendProfileUpdateNotification({
+        userId,
+        userType: 'professional',
+        updateType: 'profile_update',
+        changes: significantChanges,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch (notificationError) {
+    // Log but don't fail the request
+    console.error('Failed to send profile update notification:', notificationError);
   }
-
+  
   return c.json(profile, HttpStatusCodes.OK);
 };
 
@@ -116,44 +168,81 @@ export const uploadProfilePhoto: AppRouteHandler<UploadProfilePhotoRoute> = asyn
   const userId = c.get("jwtPayload")?.userId;
 
   if (!userId) {
-    return c.json({ error: "Unauthorized", message: "User not authenticated" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("User not authenticated", HttpStatusCodes.UNAUTHORIZED);
   }
 
-  // Check if profile exists before allowing upload
-  const profile = await profileService.getCustomerProfile(userId) || await profileService.getProfessionalProfile(userId);
-  if (!profile) {
-    return c.json({ error: "NotFound", message: "User profile not found" }, HttpStatusCodes.NOT_FOUND);
+  const file = data.file;
+  
+  // Enhanced image processing options for profile photos
+  const processingOptions: ImageProcessingOptions = {
+    ...DEFAULT_PROFILE_OPTIONS,
+    width: 400,
+    height: 400,
+    quality: 90,
+    format: 'webp',
+    fit: 'cover',
+    generateThumbnail: true,
+    thumbnailSize: 150,
+  };
+
+  const result = await imageUploader.upload(
+    file,
+    {
+      userId,
+      uploadType: 'profile_photo',
+      uploadedAt: new Date().toISOString(),
+    },
+    processingOptions
+  );
+
+  if (!result) {
+    throw new AppError("Failed to upload image", HttpStatusCodes.INTERNAL_SERVER_ERROR);
   }
 
+  // Update profile photo in database with both optimized and thumbnail URLs
+  await profileService.updateProfilePhoto(userId, result.url, result.thumbnailUrl);
+
+  // Send notification for profile photo update
   try {
-    const file = data.file;
-    const result = await imageUploader.upload(
-      file,
-      {
-        userId,
-        uploadedAt: new Date().toISOString(),
-      }
-    );
-
-    if (!result) {
-      return c.json({ error: "UploadFailed", message: "Failed to upload image" }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
-    }
-
-    const uploadResult = {
-      url: result.url,
+    // Determine user type from profile
+    const [customerProfile, professionalProfile] = await Promise.all([
+      profileService.getCustomerProfile(userId),
+      profileService.getProfessionalProfile(userId)
+    ]);
+    
+    const userType = customerProfile ? 'customer' : 'professional';
+    
+    await notificationService.sendProfileUpdateNotification({
+      userId,
+      userType,
+      updateType: 'profile_photo_update',
+      changes: ['profile photo'],
+      timestamp: new Date().toISOString(),
       metadata: {
-        userId,
-        uploadedAt: result.metadata.uploadedAt
-      }
-    };
-
-    return c.json(uploadResult, HttpStatusCodes.CREATED);
-  } catch (error) {
-    if (error instanceof Error) {
-      return c.json({ error: error.name, message: error.message }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
-    }
-    return c.json({ error: "Unknown", message: "Upload failed" }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
+        compressionRatio: result.metadata.compressionRatio,
+        optimizedSize: result.metadata.optimizedSize,
+        thumbnailGenerated: !!result.thumbnailUrl,
+      },
+    });
+  } catch (notificationError) {
+    // Log but don't fail the request
+    console.error('Failed to send profile photo update notification:', notificationError);
   }
+
+  const uploadResult = {
+    url: result.url,
+    thumbnailUrl: result.thumbnailUrl,
+    processedVersions: result.processedVersions,
+    metadata: {
+      userId,
+      uploadedAt: result.metadata.uploadedAt,
+      optimizedSize: result.metadata.optimizedSize,
+      compressionRatio: result.metadata.compressionRatio,
+      processed: true,
+    }
+  };
+
+  return c.json(uploadResult, HttpStatusCodes.CREATED);
 };
 
 export const deleteProfilePhoto: AppRouteHandler<DeleteProfilePhotoRoute> = async (c) => {
@@ -161,28 +250,18 @@ export const deleteProfilePhoto: AppRouteHandler<DeleteProfilePhotoRoute> = asyn
   const userId = c.get("jwtPayload")?.userId;
 
   if (!userId) {
-    return c.json({ error: "Unauthorized", message: "User not authenticated" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("User not authenticated", HttpStatusCodes.UNAUTHORIZED);
   }
 
   if (userId !== data.userId) {
-    return c.json({ error: "Unauthorized", message: "Cannot delete photo for another user" }, HttpStatusCodes.UNAUTHORIZED);
+    throw new AppError("Cannot delete photo for another user", HttpStatusCodes.UNAUTHORIZED);
   }
 
-  try {
-    // Delete the file from storage
-    await imageUploader.delete(data.imagePath);
+  // Delete the file from storage
+  await imageUploader.delete(data.imagePath);
 
-    // Update user profile to remove the photo URL
-    await profileService.removeProfilePhoto(userId);
+  // Update user profile to remove the photo URL
+  await profileService.removeProfilePhoto(userId);
 
-    return c.json({ message: "Photo deleted successfully" }, HttpStatusCodes.OK);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes("not found")) {
-        return c.json({ error: "Not Found", message: "Photo not found" }, HttpStatusCodes.NOT_FOUND);
-      }
-      return c.json({ error: error.name, message: error.message }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
-    }
-    return c.json({ error: "Unknown", message: "Deletion failed" }, HttpStatusCodes.INTERNAL_SERVER_ERROR);
-  }
+  return c.json({ message: "Photo deleted successfully" }, HttpStatusCodes.OK);
 };

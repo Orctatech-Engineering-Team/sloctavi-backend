@@ -516,7 +516,7 @@ export const OTP_VERIFICATION_TEMPLATE = `<!DOCTYPE html>
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
                                     <td align="center">
-                                        <h1 class="header-text">🔐 Email Verification</h1>
+                                        <h1 class="header-text">Email Verification</h1>
                                     </td>
                                 </tr>
                             </table>

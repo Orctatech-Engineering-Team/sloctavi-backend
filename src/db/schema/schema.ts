@@ -306,12 +306,26 @@ export const insertCustomerProfileSchema = createInsertSchema(customerProfiles).
   updatedAt: true,
 });
 
+export const updateCustomerProfileSchema = createInsertSchema(customerProfiles).omit({
+  id: true,
+  userId: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial();
+
 export const insertProfessionalProfileSchema = createInsertSchema(professionalProfiles).omit({
   id: true,
   userId: true,
   createdAt: true,
   updatedAt: true,
 });
+
+export const updateProfessionalProfileSchema = createInsertSchema(professionalProfiles).omit({
+  id: true,
+  userId: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial();
 
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
