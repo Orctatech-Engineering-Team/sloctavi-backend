@@ -89,7 +89,7 @@ export const login = createRoute({
 export const refreshToken = createRoute({
   method: "post",
   path: "/auth/refresh",
-  tags: ["Auth"],
+  tags,
   responses: {
     [HttpStatusCodes.ACCEPTED]: jsonContent(
       z.object({
@@ -109,7 +109,7 @@ export const refreshToken = createRoute({
 export const logout = createRoute({
   method: "get",
   path: "/auth/logout",
-  tags: ["Auth"],
+  tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       z.object({
@@ -206,7 +206,7 @@ export const resendOTP = createRoute({
 export const checkVerificationStatus = createRoute({
   method: "get",
   path: "/auth/verification-status",
-  tags: ["Auth"],
+  tags,
   security: [{ bearerAuth: [] }],
   responses: {
     [HttpStatusCodes.OK]: jsonContent(

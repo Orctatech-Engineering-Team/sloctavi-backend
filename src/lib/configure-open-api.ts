@@ -63,7 +63,7 @@ For API support, contact: dev@sloctavi.com
     },
     servers: [
       {
-        url: "https://sloctavi-backend.onrender.com/api",
+        url: "https://sloctavi-backend.onrender.com",
         description: "Production Server",
         variables: {
           version: {
@@ -73,7 +73,7 @@ For API support, contact: dev@sloctavi.com
         }
       },
       {
-        url: `${new URL(c.req.url).origin}/api`,
+        url: `${new URL(c.req.url).origin}`,
         description: "Development Server",
       },
     ],
