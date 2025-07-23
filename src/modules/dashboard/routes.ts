@@ -2,7 +2,6 @@ import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent } from "stoker/openapi/helpers";
 
-import { selectProfessionalProfileSchema } from "@/db/schema/schema";
 import { badRequestSchema } from "@/lib/constants";
 
 const tags = ["Dashboard"];

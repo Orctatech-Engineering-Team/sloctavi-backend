@@ -207,7 +207,6 @@ export const checkVerificationStatus = createRoute({
   method: "get",
   path: "/auth/verification-status",
   tags,
-  security: [{ bearerAuth: [] }],
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       z.object({
