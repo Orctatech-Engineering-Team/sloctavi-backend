@@ -1,8 +1,8 @@
 // redis client for mailer
-import env from "@/env";
+// import env from "@/env";
 import Redis from "ioredis";
 
-const client = new Redis(env.REDIS_URL, {
+const client = new Redis({
   maxRetriesPerRequest: null,
 });
 

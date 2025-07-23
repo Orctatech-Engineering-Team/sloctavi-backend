@@ -1,4 +1,6 @@
-import { z } from "zod";\nimport { extendZodWithOpenApi } from "@hono/zod-openapi";\n\n// Extend Zod with OpenAPI methods\nextendZodWithOpenApi(z);
+import { z } from "zod";
+
+// Extend Zod with OpenAPI methods\nextendZodWithOpenApi(z);
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import * as schema from "@/db/schema/schema";
 

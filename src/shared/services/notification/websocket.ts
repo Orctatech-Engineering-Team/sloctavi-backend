@@ -1,8 +1,9 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { eq } from "drizzle-orm";
 import { jwtVerify } from "jose";
 import { WebSocket } from "ws"; // Explicitly import WebSocket from ws
 
-import type { AppBindings } from "@/lib/types";
 
 import db from "@/db";
 import { users } from "@/db/schema/schema";

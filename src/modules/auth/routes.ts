@@ -4,9 +4,8 @@ import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 
 import { insertUsersSchema, selectUsersSchema } from "@/db/schema/schema";
 import { badRequestSchema, notFoundSchema, unauthorizedSchema } from "@/lib/constants";
-import { user } from "@/db/schema/auth-schema";
 
-const tags = ["Auth"];
+const tags = ["Authentication"];
 
 export const register = createRoute({
   path: "/auth/register",
@@ -94,7 +93,7 @@ export const refreshToken = createRoute({
   responses: {
     [HttpStatusCodes.ACCEPTED]: jsonContent(
       z.object({
-        token: z.string(), // token here is the new access token
+        token: z.string(),
         message: z.string(),
       }),
       "New access token",

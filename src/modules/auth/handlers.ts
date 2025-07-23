@@ -1,5 +1,5 @@
 import { getCookie, setCookie } from "hono/cookie";
-import { jwtVerify, SignJWT } from "jose";
+import { SignJWT } from "jose";
 import { randomUUID } from "node:crypto";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 
@@ -81,7 +81,7 @@ export const login: AppRouteHandler<LoginRoute> = async (c) => {
   });
 
   return c.json({
-    token: accessToken,
+    token: accessToken as string,
     user,
     message: "Login Successful",
   }, HttpStatusCodes.OK);
@@ -120,7 +120,7 @@ export const refresh: AppRouteHandler<RefreshRoute> = async (c) => {
     expires: newExpires,
   });
 
-  return c.json({ token: accessToken, message: "Token refreshed" });
+  return c.json({ token: accessToken as string, message: "Token refreshed" });
 };
 
 export const logout: AppRouteHandler<LogoutRoute> = async (c) => {

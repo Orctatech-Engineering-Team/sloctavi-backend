@@ -4,8 +4,7 @@ import { randomBytes } from "node:crypto";
 
 import db from "@/db";
 import { refreshTokens } from "@/db/schema/auth";
-import { users, user_type, UserType, passwordResets } from "@/db/schema/schema";
-import { isValid } from "zod";
+import { users, UserType, passwordResets } from "@/db/schema/schema";
 
 const Auth = {
   async register(email: string, password: string, type: UserType) {
@@ -45,6 +44,7 @@ const Auth = {
       .where(eq(users.id, user.id))
       .returning();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = newUser[0];
 
     return userWithoutPassword;
