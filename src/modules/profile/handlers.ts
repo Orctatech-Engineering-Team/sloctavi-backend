@@ -44,7 +44,7 @@ export const getCustomerProfile: AppRouteHandler<GetCustomerProfileRoute> = asyn
 
 export const createProfessionalProfile: AppRouteHandler<CreateProfessionalProfileRoute> = async (c) => {
   const data = c.req.valid("json");
-  const userId = c.get("jwtPayload").userId
+  const userId = c.get("jwtPayload")?.userId
 
   if (!userId) {
     throw new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED);
