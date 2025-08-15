@@ -416,7 +416,7 @@ For API support, contact: dev@sloctavi.com
     type: "http",
     scheme: "bearer",
     bearerFormat: "JWT",
-    description: "",
+    description: "JWT Bearer authentication. Provide your JWT token in the 'Authorization' header as 'Bearer <token>'. Example: 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'",
   });
 
   // Register additional components for better API documentation
