@@ -27,18 +27,29 @@ import { createWebSocketHandler } from "@/shared/services/notification/websocket
 // import { serveStatic } from "@hono/node-server/serve-static";
 import {showRoutes} from "hono/dev"
 import {cors} from "hono/cors";
+import { openApiMetadata, requestTracking, rateLimitHeaders, errorFormatter, securityHeaders} from "@/lib/openapi-middleware";
 
 const app = createApp();
+
+// Add OpenAPI and security middleware
+
+app.use('*', securityHeaders());
+
+app.use('*', requestTracking());
+app.use('*', openApiMetadata());
+app.use('*', rateLimitHeaders(100, 60000)); // 100 requests per minute
+app.use('*', errorFormatter());
 
 // Enable CORS for all origins (safe for local testing, not for prod)
 app.use('*', cors({
   origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-API-Key'],
+  exposeHeaders: ['X-Request-ID', 'X-Response-Time', 'X-API-Version'],
 }))
 
 // Set up WebSocket support
-const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
+const { upgradeWebSocket } = createNodeWebSocket({ app });
 
 configureOpenAPI(app);
 

@@ -4,9 +4,8 @@ import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 
 import { insertUsersSchema, selectUsersSchema } from "@/db/schema/schema";
 import { badRequestSchema, notFoundSchema, unauthorizedSchema } from "@/lib/constants";
-import { user } from "@/db/schema/auth-schema";
 
-const tags = ["Auth"];
+const tags = ["Authentication"];
 
 export const register = createRoute({
   path: "/auth/register",
@@ -90,11 +89,11 @@ export const login = createRoute({
 export const refreshToken = createRoute({
   method: "post",
   path: "/auth/refresh",
-  tags: ["Auth"],
+  tags,
   responses: {
     [HttpStatusCodes.ACCEPTED]: jsonContent(
       z.object({
-        token: z.string(), // token here is the new access token
+        token: z.string(),
         message: z.string(),
       }),
       "New access token",
@@ -110,7 +109,7 @@ export const refreshToken = createRoute({
 export const logout = createRoute({
   method: "get",
   path: "/auth/logout",
-  tags: ["Auth"],
+  tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       z.object({
@@ -207,8 +206,7 @@ export const resendOTP = createRoute({
 export const checkVerificationStatus = createRoute({
   method: "get",
   path: "/auth/verification-status",
-  tags: ["Auth"],
-  security: [{ bearerAuth: [] }],
+  tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       z.object({

@@ -11,7 +11,12 @@
       "Bash(ls:*)",
       "Bash(cat:*)",
       "Bash(echo:*)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Bash(pnpm update:*)",
+      "Bash(pnpm run:*)",
+      "Bash(npx tsx:*)",
+      "Bash(pnpm info:*)",
+      "Bash(npm info:*)"
     ],
     "deny": []
   }

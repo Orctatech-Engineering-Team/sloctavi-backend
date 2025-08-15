@@ -11,4 +11,4 @@ const router = createRouter()
   .openapi(routes.getUserActivityLogs, handlers.getUserActivityLogs)
   .openapi(routes.getAuditLogStatistics, handlers.getAuditLogStatistics);
 
-export default router;
+export default router; 

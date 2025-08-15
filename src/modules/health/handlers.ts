@@ -16,6 +16,9 @@ export const healthHandler: AppRouteHandler<HealthRoute> = async(c) => {
       await dbPing()
       results.database = 'ok'
     } catch (e) {
+      // Log the error but don't fail the health check
+      const logger = c.get("logger");
+      logger.error({ err: e }, "Database health check failed");
       results.database = 'fail'
     }
   
@@ -24,6 +27,9 @@ export const healthHandler: AppRouteHandler<HealthRoute> = async(c) => {
       await redisPing()
       results.redis = 'ok'
     } catch (e) {
+      // Log the error but don't fail the health check
+      const logger = c.get("logger");
+      logger.error({ err: e }, "Redis health check failed");
       results.redis = 'fail'
     }
 
@@ -32,6 +38,9 @@ export const healthHandler: AppRouteHandler<HealthRoute> = async(c) => {
       const wsHealth = await wsHealthCheck()
       results.websocket = wsHealth.healthy ? 'ok' : 'fail'
     } catch (e) {
+      // Log the error but don't fail the health check
+      const logger = c.get("logger");
+      logger.error({ err: e }, "WebSocket health check failed");
       results.websocket = 'fail'
     }
   

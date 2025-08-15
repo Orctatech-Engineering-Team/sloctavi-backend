@@ -8,7 +8,7 @@ export async function dbPing(): Promise<void> {
     // Simple SELECT 1 query using Drizzle
     await db.execute(sql`SELECT 1`) // or: await db.run(sql`SELECT 1`)
   } catch (error) {
-    throw new Error('Database unreachable')
+    throw new Error('Database unreachable', { cause: error });
   }
 }
 

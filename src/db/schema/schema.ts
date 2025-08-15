@@ -11,6 +11,7 @@ import {
   text,
   time,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -35,14 +36,16 @@ export const roles = pgTable("roles", {
 // ----------------- USERS -----------------
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull(),
   password: varchar("password_hash", { length: 255 }).notNull(),
   type: user_type("type").notNull(),
   isVerified: boolean("is_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   lastLogin: timestamp("last_login").defaultNow(),
-});
-
+}, (t) => ({
+  emailTypeUnique: unique('email_type').on(t.email, t.type)
+}));
+  
 // ----------------- USER_ROLES (many-to-many) -----------------
 export const userRoles = pgTable("user_roles", {
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
