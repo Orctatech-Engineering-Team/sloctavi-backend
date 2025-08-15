@@ -2,7 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 
-import { insertCustomerProfileSchema, insertProfessionalProfileSchema, insertUserSchema, selectCustomerProfileSchema, selectProfessionalProfileSchema, updateCustomerProfileSchema, updateProfessionalProfileSchema } from "@/db/schema/schema";
+import { insertCustomerProfileSchema, insertProfessionalProfileSchema, selectCustomerProfileSchema, selectProfessionalProfileSchema, updateCustomerProfileSchema, updateProfessionalProfileSchema } from "@/db/schema/schema";
 import { badRequestSchema, notFoundSchema, unauthorizedSchema } from "@/lib/constants";
 import { deleteRequestBody, profilePhotoUploadSchema, successResponseSchema, uploadErrorSchema } from "./schema";
 
@@ -234,7 +234,9 @@ export const uploadProfilePhoto = createRoute({
       content: {
         'multipart/form-data': {
           schema: z.object({
-            file: z.instanceof(File),
+            file: z.instanceof(File).openapi({
+              description: 'Profile photo file'
+              }),
           })
         }
       }
